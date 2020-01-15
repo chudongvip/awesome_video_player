@@ -4,32 +4,37 @@
 
 ### 写在前面
 
-对！这就是一个播放器，是不是你正在找的哪一款？我们往往写项目都是先写，总想着先写后面有时间了再来优化，然后却是一个永远不会执行的`else`语句。什么叫高度自由的播放器呢？我是这么认为的，首先开放很多可配置的属性，其次需要跟业务代码解耦，这还没有完，我们再升华一下，让视频播放器实现可定制化拓展，也就是说当前播放器满足不了自己需求的时候，我们不再需要等待作者来更新，你可以自己实现更改，例如视频的`字幕`，`弹幕`，`视频顶部控制栏`等。
+我们往往写项目都是着急上手，总想着先写后面有时间了再（说）来（的）优（好）化（听），这样写出来的代码往往都是跟业务系统耦合在一块要么就是质量不高，下次使用的时候就想重构，有人说项目急没办法（曾经我也这么说过），但是一个好的编程习惯真的可以做到事半功倍。既然是一种习惯，那么肯定是可以改的，首先我要先习惯利用思维导图来明确明白自己要什么，有什么功能，开始设计接口以及参数，最后才是分优先级然后根据优先级来执行下一步该做什么，这样可以很大高效的避免踩坑，避免因为设计不合理需要重构就麻烦了。闲话不多说下面进入正题。
+
+那么什么叫高度自由的播放器呢？我是这么认为的：首先尽可能的开放权限来更改配置，其次模块化设计，同时还需要跟业务代码解耦，光有这些还不算够，最后我们需要让视频播放器实现自定义拓展，也就是说现有播放器功能满足不了自己需求的时候，开发者可以自己动手，例如视频的`字幕`，`弹幕`，`视频顶部控制栏`等。
 
 
 ![](https://user-gold-cdn.xitu.io/2020/1/14/16fa3cfd062a9d73?w=480&h=800&f=gif&s=4666970)
 
 <center>一张效果图</center>
 
+### 快速通道
+
+- [Git地址](https://github.com/chudongvip/awsome_video_player)
+- [DEMO源码](https://github.com/chudongvip/awsome_video_player/tree/master/example)
+
 ### 高自由度的播放器应该具备哪些功能？
 
 - 1.所有图标均可自定义
 - 2.播放器自定义配置
-  - 快进快退间隔
+  - 视频开始播放的起始位置
   - 是否自动播放
   - 是否循环播放
   - 视频比例
   - 进度条是否允许拖拽
-  - 开始播放结点
-  - 是否开启横竖屏
-- 3.无限拓展子元素
-- 字幕
+  - 视频快进/快退的单位秒数
+- 3.自定义拓展子元素
+  - 字幕（也可以使用内置字幕）
   - 弹幕
-  - 其他元素（例如：自定义视频顶部返回按钮；快进或快退等操作的浮层提示等等）
+  - 其他元素（例如：广告覆盖；自定义视频顶部返回按钮；快进或快退等操作的渐入渐出的提示等等）
 - 4.自定义播放器样式
-  - 是否显示播放/暂停的按钮 
-  - 自定义暂停时的播放图标
-
+  - 播放按钮是否显示（视频暂停时视图中央的播放按钮）
+  - 自定义播放按钮（视频暂停时视图中央的播放按钮）
   - 控制栏自定义配置
     - 自定义顺序（通过数组来控制元素）
     - 自定义元素（通过数组来控制顺序）
@@ -38,9 +43,12 @@
     - 进度条样式自由配置（背景颜色、缓存区颜色、进度条颜色）
     - 音量控制元素（尚未完成）
     - 内置弹幕（尚未完成，尚可自定义）
-  - 控制栏拓展
+    - 控制栏拓展（尚未完成）
+  - 内置字幕自定义配置(或者通过自定义拓展来自己重写字幕)
+    - 设置主字幕或辅字幕的字体大小
+    - 设置主字幕或辅字幕的字体颜色
 - 5.手势支持
-- 单击（菜单栏显示或隐藏）
+  - 单击（菜单栏显示或隐藏）
   - 双击（暂停或播放）
   - 滑动快进或快退（未完成）
 - 6.横竖屏切换
@@ -56,58 +64,58 @@
 
 **播放器属性：**
 
-| 类型             | 属性         | 描述                                                         |
-| ---------------- | ------------ | ------------------------------------------------------------ |
-| String           | dataSource   | 视频URL或媒体文件的路径                                      |
-| List<Widget>     | children     | 自定义拓展的子元素，需要使用 Widget`Align`（字幕、弹幕、视频顶部控制栏等） |
-| VideoCallback    | onplay       | 视频开始播放的回调                                           |
-| VideoCallback    | onpause      | 视频暂停播放回调                                             |
-| VideoCallback    | ontimeupdate | 视频播放进度回调（通过返回的value进行字幕匹配）              |
-| VideoCallback    | onend        | 视频播放结束回调                                             |
-| VideoPlayOptions | playOptions  | 视频播放自定义配置（详情见下方的**Useage**）                 |
-| VideoStyle       | videoStyle   | 视频播放器自定义样式（详情见下方的**Useage**）               |
+| 属性         | 类型             | 描述                                                         |
+| ------------ | ---------------- | ------------------------------------------------------------ |
+| dataSource   | String           | 视频URL或媒体文件的路径                                      |
+| children     | List<Widget>     | 自定义拓展的子元素，需要使用 Widget`Align`（字幕、弹幕、视频顶部控制栏等） |
+| onplay       | VideoCallback    | 视频开始播放的回调                                           |
+| onpause      | VideoCallback    | 视频暂停播放回调                                             |
+| ontimeupdate | VideoCallback    | 视频播放进度回调（通过返回的value进行字幕匹配）              |
+| onend        | VideoCallback    | 视频播放结束回调                                             |
+| playOptions  | VideoPlayOptions | 视频播放自定义配置（详情见下方的**Useage**）                 |
+| videoStyle   | VideoStyle       | 视频播放器自定义样式（详情见下方的**Useage**）               |
 
 
 
 **播放器自定义配置 (VideoPlayOptions)：**
 
-| 类型     | 属性           | 描述                                      |
-| -------- | -------------- | ----------------------------------------- |
-| Duration | startPosition  | 开始播放节点，例如：Duration(seconds: 0)) |
-| bool     | loop           | 是否循环播放                              |
-| num      | seekSeconds    | 设置视频快进/快退单位秒数                 |
-| bool     | autoplay       | 是否自动播放                              |
-| num      | aspectRatio    | 视频播放比例，例如：16/9 或者 4/3         |
-| bool     | allowScrubbing | 是否运行进度条拖拽                        |
+| 属性           | 类型     | 描述                                      |
+| -------------- | -------- | ----------------------------------------- |
+| startPosition  | Duration | 开始播放节点，例如：Duration(seconds: 0)) |
+| loop           | bool     | 是否循环播放                              |
+| seekSeconds    | num      | 设置视频快进/快退单位秒数                 |
+| autoplay       | bool     | 是否自动播放                              |
+| aspectRatio    | num      | 视频播放比例，例如：16/9 或者 4/3         |
+| allowScrubbing | bool     | 是否运行进度条拖拽                        |
 
 
 
 **播放器自定义样式 (VideoStyle)：**
 
-| 类型                 | 属性                 | 描述                                                         |
+| 属性                 | 类型                 | 描述                                                         |
 | -------------------- | -------------------- | ------------------------------------------------------------ |
-| Widget               | playIcon             | 视频暂停播放时中央显示的图标，showPlayIcon为`false`时，该属性设置无效。 |
-| bool                 | showPlayIcon         | 暂停时是否显示播放按钮                                       |
-| VideoControlBarStyle | videoControlBarStyle | 控制栏自定义样式                                             |
-| VideoSubtitles       | videoSubtitlesStyle  | 字幕自定义样式                                               |
+| playIcon             | Widget               | 视频暂停播放时中央显示的图标，showPlayIcon为`false`时，该属性设置无效。 |
+| showPlayIcon         | bool                 | 暂停时是否显示播放按钮                                       |
+| videoControlBarStyle | VideoControlBarStyle | 控制栏自定义样式                                             |
+| videoSubtitlesStyle  | VideoSubtitles       | 字幕自定义样式                                               |
 
 
 
 **控制栏自定义样式 (VideoControlBarStyle)：**
 
-| 类型         | 属性               | 描述                                                         |
-| ------------ | ------------------ | ------------------------------------------------------------ |
-| Color        | barBackgroundColor | 控制栏背景颜色，默认为`Color.fromRGBO(0, 0, 0, 0.5)`         |
-| Color        | playedColor        | 已播放的进度条颜色（下`图1`详细说明）                        |
-| Color        | bufferedColor      | 已缓冲的进度条颜色（下`图1`详细说明）                        |
-| Color        | backgroundColor    | 进度条背景颜色（下`图1`详细说明）                            |
-| Widget       | playIcon           | 控制栏播放图标（下`图2`详细说明）                            |
-| Widget       | pauseIcon          | 控制栏暂停图标（下`图2`详细说明）                            |
-| Widget       | rewindIcon         | 控制栏快退图标（下`图2`详细说明）                            |
-| Widget       | forwardIcon        | 控制栏快进图标（下`图2`详细说明）                            |
-| Widget       | fullscreenIcon     | 控制栏全屏图标（下`图2`详细说明）                            |
-| Widget       | fullscreenExitIcon | 控制栏取消全屏图标（下`图2`详细说明）                        |
-| List<String> | itemList           | 控制栏自定义功能（下`图3`详细说明），默认为["rewind", "play", "forward",  "progress",  "time", "fullscreen"]。如果我们需要调整控制栏显示的顺序，仅需要调整 list 中字符串的顺序，如果需要删减，直接从 list 中移除改字符串即可，例如移除快进和快退，则讲 list 设置为 ["play", "progress",  "time", "fullscreen"] 即可。后面会陆续开放自定义元素，也就是你把你的元素加入到 list 中。 |
+| 属性               | 类型         | 描述                                                         |
+| ------------------ | ------------ | ------------------------------------------------------------ |
+| barBackgroundColor | Color        | 控制栏背景颜色，默认为`Color.fromRGBO(0, 0, 0, 0.5)`         |
+| playedColor        | Color        | 已播放的进度条颜色（下`图1`详细说明）                        |
+| bufferedColor      | Color        | 已缓冲的进度条颜色（下`图1`详细说明）                        |
+| backgroundColor    | Color        | 进度条背景颜色（下`图1`详细说明）                            |
+| playIcon           | Widget       | 控制栏播放图标（下`图2`详细说明）                            |
+| pauseIcon          | Widget       | 控制栏暂停图标（下`图2`详细说明）                            |
+| rewindIcon         | Widget       | 控制栏快退图标（下`图2`详细说明）                            |
+| forwardIcon        | Widget       | 控制栏快进图标（下`图2`详细说明）                            |
+| fullscreenIcon     | Widget       | 控制栏全屏图标（下`图2`详细说明）                            |
+| fullscreenExitIcon | Widget       | 控制栏取消全屏图标（下`图2`详细说明）                        |
+| itemList           | List<String> | 控制栏自定义功能（下`图3`详细说明），默认为["rewind", "play", "forward",  "progress",  "time", "fullscreen"]。如果我们需要调整控制栏显示的顺序，仅需要调整 list 中字符串的顺序，如果需要删减，直接从 list 中移除改字符串即可，例如移除快进和快退，则讲 list 设置为 ["play", "progress",  "time", "fullscreen"] 即可。后面会陆续开放自定义元素，也就是你把你的元素加入到 list 中。 |
 
 ![控制栏颜色自定义](https://user-gold-cdn.xitu.io/2020/1/14/16fa3bfbc4f63f60?w=960&h=402&f=png&s=24998)
 
@@ -140,9 +148,9 @@
 
 3. 在页面中引入库
 
-    ```
-    import 'package:awsome_video_player/awsome_video_player.dart';
-    ```
+   ```
+   import 'package:awsome_video_player/awsome_video_player.dart';
+   ```
 
 ## Useage
 
@@ -346,11 +354,9 @@ class _MyAppState extends State<MyApp> {
 
 #### 1. 自定义控制栏图标
 
-首先我来看一下控制栏的图标自定义:
+首先我来看一下控制栏的图标自定义（见上图2）:
 
-![](https://user-gold-cdn.xitu.io/2020/1/14/16fa3c1561a047aa?w=1037&h=481&f=png&s=20143)
-
-代码：main.dart
+>DEMO: main.dart
 
 ```
 import 'package:flutter/material.dart';
@@ -440,6 +446,8 @@ class _MyAppState extends State<MyApp> {
 
 我们可以根据`videoStyle`中`videoControlBarStyle`来自定义控制栏的样式：调整顺序（见上方图3）只需要调整 `itemList`中字符串的顺序即可；控制显示的元素，将不需要暂时的元素从  `itemList` 中删除即可。
 
+>DEMO: main.dart
+
 ```
 import 'package:flutter/material.dart';
 
@@ -500,6 +508,8 @@ class _MyAppState extends State<MyApp> {
 #### 3. 自定义进度条以及控制栏的背景颜色
 
 同样我们还是通过`videoStyle`中`videoControlBarStyle`来自定义进度条的颜色（见上方图3）。
+
+>DEMO: main.dart
 
 ```
 import 'package:flutter/material.dart';
@@ -621,7 +631,6 @@ class _MyAppState extends State<MyApp> {
   
   ```
 
-  
 
 - `AwsomeVideoPlayer`下面的`children`仅支持`Align`和`Positioned`，children的层级会高于下面，这个功能会持续更新，后面会陆续出一些针对自定义拓展的高阶文档。
 
@@ -629,7 +638,11 @@ class _MyAppState extends State<MyApp> {
 
 # 写在最后
 
-开发过程中遇到问题，请通过下面的微信或者微信群进行提问或者[点击](https://github.com/chudongvip/awsome_video_player/issues/new?title=\[Question%20report%20\]%20XXX%20&body=%3C!--%20generated%20by%20README%20--%3E)这里，如果需要上报BUG可以[点击这里](https://github.com/chudongvip/awsome_video_player/issues/new?title=[Bug%20report]%20XXX%20&body)，我会第一时间回复你，期待与你的讨论。
+开发过程中遇到问题，请通过以下方式联系我，我会第一时间回复你：
+
+- 请通过下面的微信或者微信群进行提问
+- 或者[点击这里](https://github.com/chudongvip/awsome_video_player/issues/new?title=\[Question%20report%20\]%20XXX%20&body=%3C!--%20generated%20by%20README%20--%3E)提问题
+- [点击这里](https://github.com/chudongvip/awsome_video_player/issues/new?title=[Bug%20report]%20XXX%20&body)上报BUG 
 
 ![](https://user-gold-cdn.xitu.io/2020/1/14/16fa3c3f3a1a0851?w=285&h=283&f=png&s=41025)
 

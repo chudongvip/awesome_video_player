@@ -268,7 +268,7 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer> {
       "fullscreen": GestureDetector(
         onTap: () {
           OrientationPlugin.forceOrientation(!fullscreened
-              ? DeviceOrientation.landscapeLeft
+              ? DeviceOrientation.landscapeRight
               : DeviceOrientation.portraitUp);
           setState(() {
             fullscreened = !fullscreened;
@@ -343,7 +343,13 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer> {
         // onHorizontalDragEnd: () {
         //   print("end ===");
         // },
-        child: VideoPlayer(controller),
+        child: fullscreened 
+          ? AspectRatio(
+            aspectRatio: fullscreened
+              ? _calculateAspectRatio(context)
+              : widget.playOptions.aspectRatio,
+          child: VideoPlayer(controller),
+        ) : VideoPlayer(controller),
       )
     ];
   }
