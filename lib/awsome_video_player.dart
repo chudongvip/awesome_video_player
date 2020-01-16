@@ -1,5 +1,6 @@
 library awsome_video_player;
 
+export './src/video_top_bar_style.dart';
 export './src/video_control_bar_style.dart';
 export './src/video_subtitles.dart';
 export './src/video_style.dart';

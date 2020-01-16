@@ -22,6 +22,7 @@ class AwsomeVideoPlayer extends StatefulWidget {
     this.onpause,
     this.ontimeupdate,
     this.onended,
+    this.onpop,
   })  : playOptions = playOptions ?? VideoPlayOptions(),
         videoStyle = videoStyle ?? VideoStyle(),
         super(key: key);
@@ -39,6 +40,7 @@ class AwsomeVideoPlayer extends StatefulWidget {
   final VideoCallback<VideoPlayerValue> ontimeupdate; //播放开始回调
   final VideoCallback<VideoPlayerValue> onpause; //播放暂停回调
   final VideoCallback<VideoPlayerValue> onended; //播放结束回调
+  final VideoCallback<VideoPlayerValue> onpop; //顶部控制栏点击返回回调
 
   @override
   _AwsomeVideoPlayerState createState() => _AwsomeVideoPlayerState();
@@ -224,8 +226,8 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer> {
   }
 
   /// 动态生成进度条组件
-  List<Widget> generateProgressWidget() {
-    Map<String, Widget> progressWidget = {
+  List<Widget> generateControlBarWidget() {
+    Map<String, Widget> controlBarItems = {
       "rewind": GestureDetector(
         onTap: () {
           fastRewind();
@@ -280,14 +282,14 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer> {
       ),
     };
 
-    List<Widget> progress = [];
-    var progressStyle = widget.videoStyle.videoControlBarStyle.itemList;
+    List<Widget> finalBuildItem = [];
+    var userSpecifyItem = widget.videoStyle.videoControlBarStyle.itemList;
 
-    for (var i = 0; i < progressStyle.length; i++) {
-      progress.add(progressWidget[progressStyle[i]]);
+    for (var i = 0; i < userSpecifyItem.length; i++) {
+      finalBuildItem.add(controlBarItems[userSpecifyItem[i]]);
     }
 
-    return progress;
+    return finalBuildItem;
   }
 
   @override
@@ -324,38 +326,84 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer> {
   List<Widget> _videoFrame() {
     return [
       GestureDetector(
-        onTap: () {
-          //显示或隐藏菜单栏和进度条
-          toggleControls();
-        },
-        //双击
-        onDoubleTap: () {
-          if (!controller.value.initialized) return;
-          togglePlay();
-        },
-        //水平移动
-        // onHorizontalDragStart: () {
-        // print("start ===");
-        // },
-        // onHorizontalDragUpdate: () {
-        //   print("update ===");
-        // },
-        // onHorizontalDragEnd: () {
-        //   print("end ===");
-        // },
-        child: fullscreened 
-          ? AspectRatio(
+          onTap: () {
+            //显示或隐藏菜单栏和进度条
+            toggleControls();
+          },
+          //双击
+          onDoubleTap: () {
+            if (!controller.value.initialized) return;
+            togglePlay();
+          },
+          //水平移动
+          // onHorizontalDragStart: () {
+          // print("start ===");
+          // },
+          // onHorizontalDragUpdate: () {
+          //   print("update ===");
+          // },
+          // onHorizontalDragEnd: () {
+          //   print("end ===");
+          // },
+          child:
+              // fullscreened ?
+              AspectRatio(
             aspectRatio: fullscreened
-              ? _calculateAspectRatio(context)
-              : widget.playOptions.aspectRatio,
-          child: VideoPlayer(controller),
-        ) : VideoPlayer(controller),
-      )
+                ? _calculateAspectRatio(context)
+                : widget.playOptions.aspectRatio,
+            child: VideoPlayer(controller),
+          )
+          // : VideoPlayer(controller),
+          )
     ];
   }
 
   List<Widget> _controlFrame() {
     return [
+      //
+      widget.videoStyle.videoTopBarStyle.show && showMeau
+          ? widget.videoStyle.videoTopBarStyle.customBar == null
+              ? Align(
+                  alignment: Alignment.topLeft,
+                  child: Container(
+                    height: 30,
+                    padding: widget.videoStyle.videoTopBarStyle.padding,
+                    color: widget
+                        .videoStyle.videoControlBarStyle.barBackgroundColor,
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: <Widget>[
+                        /// 左侧控制栏
+                        GestureDetector(
+                          onTap: () {
+                            if (widget.onpop != null) {
+                              widget.onpop(null);
+                            }
+                          },
+                          child: widget.videoStyle.videoTopBarStyle.popIcon,
+                        ),
+
+                        /// 中部控制栏
+                        Expanded(
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children:
+                                widget.videoStyle.videoTopBarStyle.contents,
+                          ),
+                        ),
+
+                        /// 右侧部控制栏
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: widget.videoStyle.videoTopBarStyle.actions,
+                        )
+                      ],
+                    ),
+                  ),
+                )
+              : widget.videoStyle.videoTopBarStyle.customBar
+          : Align(),
+
       /// 是否显示播放按钮
       !controller.value.isPlaying && widget.videoStyle.showPlayIcon
           ? Align(
@@ -418,7 +466,7 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
-                  children: generateProgressWidget(),
+                  children: generateControlBarWidget(),
                 ),
               )
             : Text(""),
