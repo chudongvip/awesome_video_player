@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:orientation/orientation.dart';
 import 'package:video_player/video_player.dart';
-import 'package:wakelock/wakelock.dart';
+import 'package:screen/screen.dart';
 
 import './video_style.dart';
 import './video_play_options.dart';
@@ -62,6 +62,8 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer> {
   String position = "--:--";
   String duration = "--:--";
 
+  double brightness;
+
   void initPlayer() {
     if (controller == null) {
       if (widget.dataSource == null || widget.dataSource == "") return;
@@ -113,6 +115,9 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer> {
   void initState() {
     super.initState();
 
+    brightness = 0.8;
+    Screen.setBrightness(brightness);
+
     ///运行设备横竖屏
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
@@ -120,7 +125,7 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer> {
       DeviceOrientation.landscapeRight,
     ]);
     // 常亮
-    Wakelock.enable();
+    Screen.keepOn(true);
 
     initPlayer();
   }
@@ -134,7 +139,7 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer> {
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
     ]);
-    Wakelock.disable();
+    Screen.keepOn(false);
     super.dispose();
   }
 
@@ -335,16 +340,60 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer> {
             if (!controller.value.initialized) return;
             togglePlay();
           },
-          //水平移动
-          // onHorizontalDragStart: () {
-          // print("start ===");
-          // },
-          // onHorizontalDragUpdate: () {
-          //   print("update ===");
-          // },
-          // onHorizontalDragEnd: () {
-          //   print("end ===");
-          // },
+          /// 水平滑动
+          onHorizontalDragStart: (DragStartDetails details) {
+            if (!controller.value.initialized) return;
+            if (controller.value.isPlaying) {
+              controller.pause();
+            }
+          },
+          onHorizontalDragUpdate: (DragUpdateDetails details) {
+            if (!controller.value.initialized) return;
+            if (!showMeau) {
+              setState(() {
+                showMeau = true;
+              });
+              createHideControlbarTimer();
+            }
+            var currentPosition = controller.value.position;
+            print(currentPosition.inMilliseconds + 300);
+            controller.seekTo(Duration(
+              milliseconds: details.primaryDelta > 0 ? currentPosition.inMilliseconds + 300 : currentPosition.inMilliseconds - 300 ));
+          },
+          onHorizontalDragEnd: (DragEndDetails details) {
+            if (!controller.value.isPlaying) {
+              controller.play();
+            }
+          },
+          /// 垂直滑动
+          onVerticalDragStart: (DragStartDetails details) {
+          },
+          onVerticalDragUpdate: (DragUpdateDetails details) {
+            if (details.globalPosition.dx >= (screenSize.width/2)) {//右侧垂直滑动
+              if (details.primaryDelta > 0) {//往下滑动
+                if (controller.value.volume <= 0 ) return;
+                controller.setVolume(controller.value.volume - 0.1);
+              } else {//往上滑动
+                if (controller.value.volume >= 1 ) return;
+                controller.setVolume(controller.value.volume + 0.1);
+              }
+              print(controller.value.volume);
+            } else {//左侧垂直滑动
+              if (details.primaryDelta > 0) {//往下滑动
+                if (brightness <= 0) return;
+                brightness -= 0.1;
+              } else {//往上滑动
+                if (brightness >= 1) return;
+                brightness += 0.1;  
+              }
+              print(brightness);
+              Screen.setBrightness(brightness);
+            }
+          },
+          onVerticalDragEnd: (DragEndDetails details) {
+            // print("end === ");
+            // print(details);
+          },
           child:
               // fullscreened ?
               AspectRatio(
