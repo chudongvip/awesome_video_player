@@ -331,79 +331,83 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer> {
   List<Widget> _videoFrame() {
     return [
       GestureDetector(
-          onTap: () {
-            //显示或隐藏菜单栏和进度条
-            toggleControls();
-          },
-          //双击
-          onDoubleTap: () {
-            if (!controller.value.initialized) return;
-            togglePlay();
-          },
-          /// 水平滑动
-          onHorizontalDragStart: (DragStartDetails details) {
-            if (!controller.value.initialized) return;
-            if (controller.value.isPlaying) {
-              controller.pause();
+        onTap: () {
+          //显示或隐藏菜单栏和进度条
+          toggleControls();
+        },
+        //双击
+        onDoubleTap: () {
+          if (!controller.value.initialized) return;
+          togglePlay();
+        },
+        /// 水平滑动
+        onHorizontalDragStart: (DragStartDetails details) {
+          if (!controller.value.initialized) return;
+          if (controller.value.isPlaying) {
+            controller.pause();
+          }
+        },
+        onHorizontalDragUpdate: (DragUpdateDetails details) {
+          if (!controller.value.initialized) return;
+          if (!showMeau) {
+            setState(() {
+              showMeau = true;
+            });
+            createHideControlbarTimer();
+          }
+          var currentPosition = controller.value.position;
+          controller.seekTo(Duration(
+            milliseconds: details.primaryDelta > 0 ? currentPosition.inMilliseconds + 100 : currentPosition.inMilliseconds - 100 ));
+        },
+        onHorizontalDragEnd: (DragEndDetails details) {
+          if (!controller.value.isPlaying) {
+            controller.play();
+          }
+        },
+        /// 垂直滑动
+        onVerticalDragStart: (DragStartDetails details) {
+        },
+        onVerticalDragUpdate: (DragUpdateDetails details) {
+          if (details.globalPosition.dx >= (screenSize.width/2)) {//右侧垂直滑动
+            if (details.primaryDelta > 0) {//往下滑动
+              if (controller.value.volume <= 0 ) return;
+              controller.setVolume(controller.value.volume - 0.1);
+            } else {//往上滑动
+              if (controller.value.volume >= 1 ) return;
+              controller.setVolume(controller.value.volume + 0.1);
             }
-          },
-          onHorizontalDragUpdate: (DragUpdateDetails details) {
-            if (!controller.value.initialized) return;
-            if (!showMeau) {
-              setState(() {
-                showMeau = true;
-              });
-              createHideControlbarTimer();
+            print(controller.value.volume);
+          } else {//左侧垂直滑动
+            if (details.primaryDelta > 0) {//往下滑动
+              if (brightness <= 0) return;
+              brightness -= 0.1;
+            } else {//往上滑动
+              if (brightness >= 1) return;
+              brightness += 0.1;  
             }
-            var currentPosition = controller.value.position;
-            print(currentPosition.inMilliseconds + 300);
-            controller.seekTo(Duration(
-              milliseconds: details.primaryDelta > 0 ? currentPosition.inMilliseconds + 300 : currentPosition.inMilliseconds - 300 ));
-          },
-          onHorizontalDragEnd: (DragEndDetails details) {
-            if (!controller.value.isPlaying) {
-              controller.play();
-            }
-          },
-          /// 垂直滑动
-          onVerticalDragStart: (DragStartDetails details) {
-          },
-          onVerticalDragUpdate: (DragUpdateDetails details) {
-            if (details.globalPosition.dx >= (screenSize.width/2)) {//右侧垂直滑动
-              if (details.primaryDelta > 0) {//往下滑动
-                if (controller.value.volume <= 0 ) return;
-                controller.setVolume(controller.value.volume - 0.1);
-              } else {//往上滑动
-                if (controller.value.volume >= 1 ) return;
-                controller.setVolume(controller.value.volume + 0.1);
-              }
-              print(controller.value.volume);
-            } else {//左侧垂直滑动
-              if (details.primaryDelta > 0) {//往下滑动
-                if (brightness <= 0) return;
-                brightness -= 0.1;
-              } else {//往上滑动
-                if (brightness >= 1) return;
-                brightness += 0.1;  
-              }
-              print(brightness);
-              Screen.setBrightness(brightness);
-            }
-          },
-          onVerticalDragEnd: (DragEndDetails details) {
-            // print("end === ");
-            // print(details);
-          },
-          child:
-              // fullscreened ?
-              AspectRatio(
-            aspectRatio: fullscreened
-                ? _calculateAspectRatio(context)
-                : widget.playOptions.aspectRatio,
-            child: VideoPlayer(controller),
+            print(brightness);
+            Screen.setBrightness(brightness);
+          }
+        },
+        onVerticalDragEnd: (DragEndDetails details) {
+          // print("end === ");
+          // print(details);
+        },
+        child: ClipRect(
+          child: Container(
+            width: double.infinity,
+            height: double.infinity,
+            color: Colors.black,
+            child: Center(
+              child: AspectRatio(
+                aspectRatio: controller.value.aspectRatio,
+                  child: VideoPlayer(controller),
+              )
+            ),
           )
-          // : VideoPlayer(controller),
-          )
+          
+        )
+      )
     ];
   }
 
