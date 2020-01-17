@@ -1,7 +1,3 @@
-# 一个高自由度的Flutter 视频播放器
-
-![原型图](https://user-gold-cdn.xitu.io/2020/1/14/16fa3bd931fd7bbc?w=798&h=428&f=png&s=13556)
-
 ### 写在前面
 
 我们往往写项目都是着急上手，总想着先写后面有时间了再（说）来（的）优（好）化（听），这样写出来的代码往往都是跟业务系统耦合在一块要么就是质量不高，下次使用的时候就想重构，有人说项目急没办法（曾经我也这么说过），但是一个好的编程习惯真的可以做到事半功倍。既然是一种习惯，那么肯定是可以改的，首先我要先习惯利用思维导图来明确明白自己要什么，有什么功能，开始设计接口以及参数，最后才是分优先级然后根据优先级来执行下一步该做什么，这样可以很大高效的避免踩坑，避免因为设计不合理需要重构就麻烦了。闲话不多说下面进入正题。
@@ -9,12 +5,11 @@
 那么什么叫高度自由的播放器呢？我是这么认为的：首先尽可能的开放权限来更改配置，其次模块化设计，同时还需要跟业务代码解耦，光有这些还不算够，最后我们需要让视频播放器实现自定义拓展，也就是说现有播放器功能满足不了自己需求的时候，开发者可以自己动手，例如视频的`字幕`，`弹幕`，`视频顶部控制栏`等。
 
 
-![](https://user-gold-cdn.xitu.io/2020/1/14/16fa3cfd062a9d73?w=480&h=800&f=gif&s=4666970)
+![](https://user-gold-cdn.xitu.io/2020/1/16/16fac7bf77ecd4ba?w=480&h=800&f=gif&s=4286938)
 
 <center>一张效果图</center>
 
 ### 快速通道
-
 - [Git地址](https://github.com/chudongvip/awsome_video_player)
 - [DEMO源码](https://github.com/chudongvip/awsome_video_player/tree/master/example)
 
@@ -35,6 +30,14 @@
 - 4.自定义播放器样式
   - 播放按钮是否显示（视频暂停时视图中央的播放按钮）
   - 自定义播放按钮（视频暂停时视图中央的播放按钮）
+  - 顶部控制栏自定义
+    - 显示或隐藏
+    - 自定义高度
+    - 自定义边距
+    - 自定义背景颜色
+    - 自定义返回按钮
+    - 拓展中部元素（标题）
+    - 拓展右侧控制元素（更多操作）
   - 控制栏自定义配置
     - 自定义顺序（通过数组来控制元素）
     - 自定义元素（通过数组来控制顺序）
@@ -50,7 +53,9 @@
 - 5.手势支持
   - 单击（菜单栏显示或隐藏）
   - 双击（暂停或播放）
-  - 滑动快进或快退（未完成）
+  - 滑动快进或快退
+  - 滑动调整视频亮度 （左侧区域）
+  - 滑动调整音量大小（右侧区域）
 - 6.横竖屏切换
 - 7.常亮避免锁屏
 
@@ -99,6 +104,18 @@
 | videoControlBarStyle | VideoControlBarStyle | 控制栏自定义样式                                             |
 | videoSubtitlesStyle  | VideoSubtitles       | 字幕自定义样式                                               |
 
+**自定义顶部控制栏 (VideoTopBarStyle)：**
+
+| 属性               | 类型         | 描述                                                         |
+| ------------------ | ------------ | ------------------------------------------------------------ |
+| barBackgroundColor | Color        | 控制栏背景颜色，默认为`Color.fromRGBO(0, 0, 0, 0.5)`         |
+| show        | bool        | 是否显示控制栏                        |
+| height      | double       | 自定义控制栏高度                        |
+| padding    | EdgeInsets        | 自定义边距                            |
+| popIcon           | Widget       | 自定义返回按钮                            |
+| contents          | List<Widget>       | 拓展控制栏中部元素（宽度自适应： `Row`中的 `Expanded`）                            |
+| actions         | List<Widget>       | 拓展控制栏右侧控制元素                            |
+| customBar        | Widget       | 重写控制栏（如果设置了`customBar`, 除`show`属性意外上方属性均不生效）                           |
 
 
 **控制栏自定义样式 (VideoControlBarStyle)：**
@@ -106,28 +123,32 @@
 | 属性               | 类型         | 描述                                                         |
 | ------------------ | ------------ | ------------------------------------------------------------ |
 | barBackgroundColor | Color        | 控制栏背景颜色，默认为`Color.fromRGBO(0, 0, 0, 0.5)`         |
-| playedColor        | Color        | 已播放的进度条颜色（下`图1`详细说明）                        |
-| bufferedColor      | Color        | 已缓冲的进度条颜色（下`图1`详细说明）                        |
-| backgroundColor    | Color        | 进度条背景颜色（下`图1`详细说明）                            |
-| playIcon           | Widget       | 控制栏播放图标（下`图2`详细说明）                            |
-| pauseIcon          | Widget       | 控制栏暂停图标（下`图2`详细说明）                            |
-| rewindIcon         | Widget       | 控制栏快退图标（下`图2`详细说明）                            |
-| forwardIcon        | Widget       | 控制栏快进图标（下`图2`详细说明）                            |
-| fullscreenIcon     | Widget       | 控制栏全屏图标（下`图2`详细说明）                            |
-| fullscreenExitIcon | Widget       | 控制栏取消全屏图标（下`图2`详细说明）                        |
-| itemList           | List<String> | 控制栏自定义功能（下`图3`详细说明），默认为["rewind", "play", "forward",  "progress",  "time", "fullscreen"]。如果我们需要调整控制栏显示的顺序，仅需要调整 list 中字符串的顺序，如果需要删减，直接从 list 中移除改字符串即可，例如移除快进和快退，则讲 list 设置为 ["play", "progress",  "time", "fullscreen"] 即可。后面会陆续开放自定义元素，也就是你把你的元素加入到 list 中。 |
+| playedColor        | Color        | 已播放的进度条颜色（下`图2`详细说明）                        |
+| bufferedColor      | Color        | 已缓冲的进度条颜色（下`图2`详细说明）                        |
+| backgroundColor    | Color        | 进度条背景颜色（下`图2`详细说明）                            |
+| playIcon           | Widget       | 控制栏播放图标（下`图3`详细说明）                            |
+| pauseIcon          | Widget       | 控制栏暂停图标（下`图3`详细说明）                            |
+| rewindIcon         | Widget       | 控制栏快退图标（下`图3`详细说明）                            |
+| forwardIcon        | Widget       | 控制栏快进图标（下`图3`详细说明）                            |
+| fullscreenIcon     | Widget       | 控制栏全屏图标（下`图3`详细说明）                            |
+| fullscreenExitIcon | Widget       | 控制栏取消全屏图标（下`图3`详细说明）                        |
+| itemList           | List<String> | 控制栏自定义功能（下`图4`详细说明），默认为["rewind", "play", "forward",  "progress",  "time", "fullscreen"]。如果我们需要调整控制栏显示的顺序，仅需要调整 list 中字符串的顺序，如果需要删减，直接从 list 中移除改字符串即可，例如移除快进和快退，则讲 list 设置为 ["play", "progress",  "time", "fullscreen"] 即可。后面会陆续开放自定义元素，也就是你把你的元素加入到 list 中。 |
+
+
+![图1](https://user-gold-cdn.xitu.io/2020/1/16/16fac611e431fe0e?w=876&h=527&f=png&s=30069)
+<center><i>图1</i></center>
 
 ![控制栏颜色自定义](https://user-gold-cdn.xitu.io/2020/1/14/16fa3bfbc4f63f60?w=960&h=402&f=png&s=24998)
 
-<center><i>图1</i></center>
+<center><i>图2</i></center>
 
 ![图标自定义](https://user-gold-cdn.xitu.io/2020/1/14/16fa3c013a3a8520?w=1037&h=481&f=png&s=20143)
 
-<center><i>图2</i></center>
+<center><i>图3</i></center>
 
 ![控制栏进度条自定义元素](https://user-gold-cdn.xitu.io/2020/1/14/16fa3c04dd751021?w=963&h=544&f=png&s=30857)
 
-<center><i>图3</i></center>
+<center><i>图4</i></center>
 
 # 如何使用？
 
@@ -291,25 +312,6 @@ class _MyAppState extends State<MyApp> {
             ),
             /// 自定义拓展元素
             children: [
-            	/// 添加自定义视频顶部返回按钮
-              Align(
-                alignment: Alignment.topLeft,
-                child: GestureDetector(
-                  onTap: () {
-                    print("This is test from children.");
-                  },
-                  child: Container(
-                    margin: EdgeInsets.only(top: 5, left: 5),
-                    width: 30,
-                    height: 30,
-                    decoration: BoxDecoration(
-                      color: Color.fromRGBO(0, 0, 0, .5),
-                      borderRadius: BorderRadius.all(Radius.circular(15)),
-                    ),
-                    child: Icon(Icons.arrow_back, size: 16, color: Colors.white,)
-                  ),
-                ),
-              ),
 
               /// 这个将会覆盖的视频内容，因为这个层级是最高级，因此手势会失效(慎用)
               /// 这个可以用来做视频广告
@@ -350,7 +352,7 @@ class _MyAppState extends State<MyApp> {
 
 
 
-# 示例展示
+# DEMO示例
 
 #### 1. 自定义控制栏图标
 
@@ -568,6 +570,125 @@ class _MyAppState extends State<MyApp> {
 
 ```
 
+#### 4. 自定义顶部控制栏
+
+通过`videoStyle`中`videoTopBarStyle`来自定义顶部控制栏。
+
+*DEMO*
+![](https://user-gold-cdn.xitu.io/2020/1/16/16fac62d3bd2df87?w=387&h=218&f=png&s=105932)
+
+>DEMO: main.dart
+
+```
+import 'package:flutter/material.dart';
+
+import 'package:awsome_video_player/awsome_video_player.dart';
+
+void main() => runApp(MyApp());
+
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  String videoUrl = "https://www.runoob.com/try/demo_source/movie.mp4";
+  bool showAdvertCover = false;//是否显示广告
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Awsome video player'),
+        ),
+        body: Center(
+          child: videoUrl != ""
+              ? AwsomeVideoPlayer(
+                  videoUrl,
+
+                  /// 视频播放配置
+                  playOptions: VideoPlayOptions(
+                      seekSeconds: 30,
+                      aspectRatio: 16 / 9,
+                      loop: true,
+                      autoplay: true,
+                      allowScrubbing: true,
+                      startPosition: Duration(seconds: 0)),
+
+                  /// 自定义视频样式
+                  videoStyle: VideoStyle(
+
+                    /// 自定义顶部控制栏
+                    videoTopBarStyle: VideoTopBarStyle(
+                      show: true, //是否显示
+                      height: 30,
+                      padding:
+                          EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+                      barBackgroundColor: Color.fromRGBO(0, 0, 0, 0.5),
+                      popIcon: Icon(
+                        Icons.arrow_back,
+                        size: 16,
+                        color: Colors.white,
+                      ),
+                      contents: [
+                        Center(
+                          child: Container(
+                            margin: EdgeInsets.symmetric(horizontal: 10),
+                            child: Text(
+                              '123',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ),
+                        )
+                      ], //自定义顶部控制栏中间显示区域
+                      actions: [
+                        GestureDetector(
+                          onTap: () {
+                            ///1. 可配合自定义拓展元素使用，例如广告
+                            setState(() {
+                              showAdvertCover = true;
+                            });
+                            ///
+                          },
+                          child: Icon(
+                            Icons.more_horiz,
+                            size: 16,
+                            color: Colors.white,
+                          ),
+                        )
+                      ], //自定义顶部控制栏右侧显示区域
+                      /// 设置cusotmBar之后，以上属性均无效(除了`show`之外)
+                      // customBar: Text("123123132")
+                    ),
+                    
+                  ),
+
+                  /// 顶部控制栏点击返回按钮
+                  onpop: (value) {
+                    print("返回上一页");
+                  },
+                )
+              : AspectRatio(
+                  aspectRatio: 16 / 9,
+                  child: Center(
+                    child: CircularProgressIndicator(strokeWidth: 2.0),
+                  ),
+                ),
+        ),
+      ),
+    );
+  }
+}
+
+```
+
+
 
 
 ### 注意事项（Q&A）
@@ -639,7 +760,6 @@ class _MyAppState extends State<MyApp> {
 # 写在最后
 
 开发过程中遇到问题，请通过以下方式联系我，我会第一时间回复你：
-
 - 请通过下面的微信或者微信群进行提问
 - 或者[点击这里](https://github.com/chudongvip/awsome_video_player/issues/new?title=\[Question%20report%20\]%20XXX%20&body=%3C!--%20generated%20by%20README%20--%3E)提问题
 - [点击这里](https://github.com/chudongvip/awsome_video_player/issues/new?title=[Bug%20report]%20XXX%20&body)上报BUG 
