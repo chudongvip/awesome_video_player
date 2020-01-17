@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 /// 进度条样式
 class VideoControlBarStyle {
   VideoControlBarStyle({
+    this.height = 30,
+    this.padding = const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
     this.playedColor = const Color.fromRGBO(255, 0, 0, 0.7),
     this.bufferedColor = const Color.fromRGBO(50, 50, 200, 0.2),
     this.backgroundColor = const Color.fromRGBO(200, 200, 200, 0.5),
@@ -53,6 +55,8 @@ class VideoControlBarStyle {
     ],
   });
 
+  final double height;
+  final EdgeInsets padding;
   final Color playedColor;
   final Color bufferedColor;
   final Color backgroundColor;

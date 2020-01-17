@@ -8,6 +8,9 @@ import 'package:screen/screen.dart';
 import './video_style.dart';
 import './video_play_options.dart';
 
+import './video_progress_bar.dart';
+import './video_progress_style.dart';
+
 typedef VideoCallback<T> = void Function(T t);
 
 /// 视频组件
@@ -61,6 +64,8 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer> {
   Timer showTime;
   String position = "--:--";
   String duration = "--:--";
+
+  num progressTheme = 1;
 
   double brightness;
 
@@ -218,16 +223,23 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer> {
 
   ///视频进度条
   Widget defaultVideoProgress() {
-    return VideoProgressIndicator(
-      controller,
-      allowScrubbing: widget.playOptions.allowScrubbing,
-      colors: VideoProgressColors(
-        playedColor: widget.videoStyle.videoControlBarStyle.playedColor,
-        bufferedColor: widget.videoStyle.videoControlBarStyle.bufferedColor,
-        backgroundColor: widget.videoStyle.videoControlBarStyle.backgroundColor,
-      ),
-      padding: EdgeInsets.all(0),
-    );
+    if (progressTheme == 1) {
+      return AwsomeVideoProgressIndicator(
+        controller,
+        progressStyle: AwsomeVideoProgressStyle()
+      );
+    } else {
+      return VideoProgressIndicator(
+        controller,
+        allowScrubbing: widget.playOptions.allowScrubbing,
+        colors: VideoProgressColors(
+          playedColor: widget.videoStyle.videoControlBarStyle.playedColor,
+          bufferedColor: widget.videoStyle.videoControlBarStyle.bufferedColor,
+          backgroundColor: widget.videoStyle.videoControlBarStyle.backgroundColor,
+        ),
+        padding: EdgeInsets.all(0),
+      );
+    }
   }
 
   /// 动态生成进度条组件
@@ -513,7 +525,8 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer> {
         alignment: Alignment.bottomCenter,
         child: showMeau
             ? Container(
-                padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+                padding: widget.videoStyle.videoControlBarStyle.padding,
+                height: widget.videoStyle.videoControlBarStyle.height,
                 color:
                     widget.videoStyle.videoControlBarStyle.barBackgroundColor,
                 child: Row(

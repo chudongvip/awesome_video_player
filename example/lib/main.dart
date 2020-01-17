@@ -297,8 +297,8 @@ class _MyAppState extends State<MyApp> {
                   /// 视频播放进度回调
                   /// 可以用来匹配字幕
                   ontimeupdate: (value) {
-                    print("timeupdate ${value}");
-                    var position = value.position.inMilliseconds / 1000;
+                    // print("timeupdate ${value}");
+                    // var position = value.position.inMilliseconds / 1000;
                     //根据 position 来判断当前显示的字幕
                   },
 
