@@ -198,7 +198,8 @@ class _MyAppState extends State<MyApp> {
                         "rewind",
                         "play",
                         "forward",
-                        "progress",
+                        "progress",//线条形进度条（与‘basic-progress’二选一）
+                        // "basic-progress",//矩形进度条（与‘progress’二选一）
                         "time",
                         "fullscreen"
                       ],

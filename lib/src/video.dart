@@ -65,8 +65,6 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer> {
   String position = "--:--";
   String duration = "--:--";
 
-  num progressTheme = 1;
-
   double brightness;
 
   void initPlayer() {
@@ -221,25 +219,26 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer> {
     });
   }
 
-  ///视频进度条
+  ///默认视频进度条
   Widget defaultVideoProgress() {
-    if (progressTheme == 1) {
-      return AwsomeVideoProgressIndicator(
-        controller,
-        progressStyle: AwsomeVideoProgressStyle()
-      );
-    } else {
-      return VideoProgressIndicator(
-        controller,
-        allowScrubbing: widget.playOptions.allowScrubbing,
-        colors: VideoProgressColors(
-          playedColor: widget.videoStyle.videoControlBarStyle.playedColor,
-          bufferedColor: widget.videoStyle.videoControlBarStyle.bufferedColor,
-          backgroundColor: widget.videoStyle.videoControlBarStyle.backgroundColor,
-        ),
-        padding: EdgeInsets.all(0),
-      );
-    }
+    return VideoProgressIndicator(
+      controller,
+      allowScrubbing: widget.playOptions.allowScrubbing,
+      colors: VideoProgressColors(
+        playedColor: widget.videoStyle.videoControlBarStyle.playedColor,
+        bufferedColor: widget.videoStyle.videoControlBarStyle.bufferedColor,
+        backgroundColor: widget.videoStyle.videoControlBarStyle.backgroundColor,
+      ),
+      padding: EdgeInsets.all(0),
+    );
+  }
+
+  ///线条视频进度条
+  Widget lineVideoProgress() {
+    return AwsomeVideoProgressIndicator(
+      controller,
+      progressStyle: AwsomeVideoProgressStyle()
+    );
   }
 
   /// 动态生成进度条组件
@@ -269,6 +268,12 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer> {
         child: widget.videoStyle.videoControlBarStyle.forwardIcon,
       ),
       "progress": Expanded(
+        child: Container(
+          padding: EdgeInsets.symmetric(horizontal: 8),
+          child: lineVideoProgress(),
+        ),
+      ),
+      "basic-progress": Expanded(
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 8),
           child: defaultVideoProgress(),
