@@ -11,7 +11,7 @@ class VideoStyle {
     VideoSubtitles videoSubtitlesStyle,
     // this.videoCover = "",
     this.playIcon = const Icon(
-      Icons.play_circle_outline, //OMIcons.playCircleOutline
+      Icons.play_circle_outline,
       color: Color(0xFFA4A3A3),
       size: 80,
       semanticLabel: "开始播放",

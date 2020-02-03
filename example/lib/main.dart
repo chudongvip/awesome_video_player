@@ -150,10 +150,20 @@ class _MyAppState extends State<MyApp> {
                     /// 自定义底部控制栏
                     videoControlBarStyle: VideoControlBarStyle(
                       /// 自定义颜色
-                      //playedColor: Colors.red,
-                      //bufferedColor: Colors.yellow,
-                      //backgroundColor: Colors.green,
-                      //barBackgroundColor: Colors.blue,
+                      // barBackgroundColor: Colors.blue,
+                      
+                      /// 自定义进度条样式
+                      progressStyle: VideoProgressStyle(
+                        // padding: EdgeInsets.all(0),
+                        playedColor: Colors.red,
+                        bufferedColor: Colors.yellow,
+                        backgroundColor: Colors.green,
+                        dragBarColor: Colors.white,//进度条为`progress`时有效，如果时`basic-progress`则无效
+                        height: 4,
+                        progressRadius: 2,//进度条为`progress`时有效，如果时`basic-progress`则无效
+                        dragHeight: 5//进度条为`progress`时有效，如果时`basic-progress`则无效
+                      ),
+
                       /// 更改进度栏的播放按钮
                       playIcon:
                           Icon(Icons.play_arrow, color: Colors.white, size: 16),

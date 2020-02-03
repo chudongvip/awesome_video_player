@@ -9,7 +9,6 @@ import './video_style.dart';
 import './video_play_options.dart';
 
 import './video_progress_bar.dart';
-import './video_progress_style.dart';
 
 typedef VideoCallback<T> = void Function(T t);
 
@@ -225,11 +224,11 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer> {
       controller,
       allowScrubbing: widget.playOptions.allowScrubbing,
       colors: VideoProgressColors(
-        playedColor: widget.videoStyle.videoControlBarStyle.playedColor,
-        bufferedColor: widget.videoStyle.videoControlBarStyle.bufferedColor,
-        backgroundColor: widget.videoStyle.videoControlBarStyle.backgroundColor,
+        playedColor: widget.videoStyle.videoControlBarStyle.playedColor ?? widget.videoStyle.videoControlBarStyle.progressStyle.playedColor,
+        bufferedColor: widget.videoStyle.videoControlBarStyle.bufferedColor ?? widget.videoStyle.videoControlBarStyle.progressStyle.bufferedColor,
+        backgroundColor: widget.videoStyle.videoControlBarStyle.backgroundColor ?? widget.videoStyle.videoControlBarStyle.progressStyle.backgroundColor,
       ),
-      padding: EdgeInsets.all(0),
+      padding: widget.videoStyle.videoControlBarStyle.progressStyle.padding,
     );
   }
 
@@ -237,7 +236,9 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer> {
   Widget lineVideoProgress() {
     return AwsomeVideoProgressIndicator(
       controller,
-      progressStyle: AwsomeVideoProgressStyle()
+      allowScrubbing: widget.playOptions.allowScrubbing,
+      padding: widget.videoStyle.videoControlBarStyle.progressStyle.padding,
+      progressStyle: widget.videoStyle.videoControlBarStyle.progressStyle
     );
   }
 

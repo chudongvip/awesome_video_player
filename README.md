@@ -39,11 +39,11 @@
     - 拓展中部元素（标题）
     - 拓展右侧控制元素（更多操作）
   - 控制栏自定义配置
-    - 自定义顺序（通过数组来控制元素）
+    - 自定义顺序（通过数组来控制元素：线形进度条、矩形进度条等）
     - 自定义元素（通过数组来控制顺序）
     - 自定义背景颜色
     - 自定义图标（播放、暂停、快进、快退、全屏、取消全屏）
-    - 进度条样式自由配置（背景颜色、缓存区颜色、进度条颜色）
+    - 进度条样式自由配置（背景颜色、缓存区颜色、进度条颜色、拖拽按钮颜色、拖拽按钮颜色等）
     - 音量控制元素（尚未完成）
     - 内置弹幕（尚未完成，尚可自定义）
     - 控制栏拓展（尚未完成）
@@ -123,16 +123,27 @@
 | 属性               | 类型         | 描述                                                         |
 | ------------------ | ------------ | ------------------------------------------------------------ |
 | barBackgroundColor | Color        | 控制栏背景颜色，默认为`Color.fromRGBO(0, 0, 0, 0.5)`         |
-| playedColor        | Color        | 已播放的进度条颜色（下`图2`详细说明）                        |
-| bufferedColor      | Color        | 已缓冲的进度条颜色（下`图2`详细说明）                        |
-| backgroundColor    | Color        | 进度条背景颜色（下`图2`详细说明）                            |
+| progressStyle      | VideoProgressStyle| 自定义控制拦进度条样式                                 |
 | playIcon           | Widget       | 控制栏播放图标（下`图3`详细说明）                            |
 | pauseIcon          | Widget       | 控制栏暂停图标（下`图3`详细说明）                            |
 | rewindIcon         | Widget       | 控制栏快退图标（下`图3`详细说明）                            |
 | forwardIcon        | Widget       | 控制栏快进图标（下`图3`详细说明）                            |
 | fullscreenIcon     | Widget       | 控制栏全屏图标（下`图3`详细说明）                            |
 | fullscreenExitIcon | Widget       | 控制栏取消全屏图标（下`图3`详细说明）                        |
-| itemList           | List<String> | 控制栏自定义功能（下`图4`详细说明），默认为["rewind", "play", "forward",  "progress",  "time", "fullscreen"]。如果我们需要调整控制栏显示的顺序，仅需要调整 list 中字符串的顺序，如果需要删减，直接从 list 中移除改字符串即可，例如移除快进和快退，则讲 list 设置为 ["play", "progress",  "time", "fullscreen"] 即可。后面会陆续开放自定义元素，也就是你把你的元素加入到 list 中。 |
+| itemList           | List<String> | 控制栏自定义功能（下`图4`详细说明），默认为["rewind", "play", "forward",  "progress", "time", "fullscreen"]。如果我们需要调整控制栏显示的顺序，仅需要调整 list 中字符串的顺序，如果需要删减，直接从 list 中移除改字符串即可，例如移除快进和快退，则讲 list 设置为 ["play", "progress", "basic-progress",  "time", "fullscreen"] 即可。后面会陆续开放自定义元素，也就是你把你的元素加入到 list 中。 |
+
+
+**自定义进度条样式 (VideoProgressStyle) ：**
+| 属性               | 类型         | 描述                                                         |
+| ------------------ | ------------ | ---------------------------------------------------------- |
+| padding            | EdgeInsets   | 进度条边距（`itemList`中包含`progress`有效）                   |
+| height             | double       | 进度条高度（`itemList`中包含`progress`有效）                   |
+| dragHeight         | double       | 进度条拖拽按钮高度（`itemList`中包含`progress`有效）            |
+| progressRadius     | double       | 进度条圆角（`itemList`中包含`progress`有效）                   |
+| playedColor        | Color        | 已播放的进度条颜色（下`图2`详细说明）                            |
+| bufferedColor      | Color        | 已缓冲的进度条颜色（下`图2`详细说明）                            |
+| backgroundColor    | Color        | 进度条背景颜色（下`图2`详细说明）                               |
+| dragBarColor       | Color        | 进度条拖拽按钮演示（`itemList`中包含`progress`有效）            |
 
 
 ![图1](https://user-gold-cdn.xitu.io/2020/1/16/16fac611e431fe0e?w=876&h=527&f=png&s=30069)
@@ -232,10 +243,18 @@ class _MyAppState extends State<MyApp> {
               /// 自定义底部控制栏              
               videoControlBarStyle: VideoControlBarStyle(       
                 /// 自定义颜色
-                //playedColor: Colors.red,
-                //bufferedColor: Colors.yellow,
-                //backgroundColor: Colors.green,
                 //barBackgroundColor: Colors.blue,
+                /// 自定义进度条样式
+                progressStyle: VideoProgressStyle(
+                  // padding: EdgeInsets.all(0),
+                  playedColor: Colors.red,
+                  bufferedColor: Colors.yellow,
+                  backgroundColor: Colors.green,
+                  dragBarColor: Colors.white,//进度条为`progress`时有效，如果时`basic-progress`则无效
+                  height: 4,
+                  progressRadius: 2,//进度条为`progress`时有效，如果时`basic-progress`则无效
+                  dragHeight: 5//进度条为`progress`时有效，如果时`basic-progress`则无效
+                ),
                 /// 更改进度栏的播放按钮
                 playIcon: Icon(
                   Icons.play_arrow, 
@@ -277,7 +296,8 @@ class _MyAppState extends State<MyApp> {
                   "rewind",
                   "play",
                   "forward",
-                  "progress",
+                  "progress",//线形进度条
+                  //"basic-progress",//矩形进度条
                   "time",
                   "fullscreen"
                 ],
@@ -555,10 +575,20 @@ class _MyAppState extends State<MyApp> {
               /// 自定义底部控制栏              
               videoControlBarStyle: VideoControlBarStyle(       
                 /// 自定义颜色
-                playedColor: Colors.red,//已播放进度条的颜色
-                bufferedColor: Colors.yellow,//已缓存进度条的颜色
-                backgroundColor: Colors.green,//进度条的背景颜色
                 barBackgroundColor: Colors.blue,//控制栏的背景颜色
+
+                /// 自定义进度条样式
+                progressStyle: VideoProgressStyle(
+                  // padding: EdgeInsets.all(0),
+                  playedColor: Colors.red,
+                  bufferedColor: Colors.yellow,
+                  backgroundColor: Colors.green,
+                  dragBarColor: Colors.white,//进度条为`progress`时有效，如果时`basic-progress`则无效
+                  height: 4,
+                  progressRadius: 2,//进度条为`progress`时有效，如果时`basic-progress`则无效
+                  dragHeight: 5//进度条为`progress`时有效，如果时`basic-progress`则无效
+                ),
+                
               ),
             ),
           ),

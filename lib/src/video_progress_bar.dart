@@ -69,7 +69,7 @@ class _ProgressBarPainter extends CustomPainter {
   _ProgressBarPainter(this.value, this.style);
 
   final VideoPlayerValue value;
-  final AwsomeVideoProgressStyle style;
+  final VideoProgressStyle style;
 
   //刷新布局的时候告诉flutter 是否需要重绘
   @override
@@ -143,14 +143,14 @@ class _ProgressBarPainter extends CustomPainter {
 class AwsomeVideoProgressIndicator extends StatefulWidget {
   AwsomeVideoProgressIndicator(
     this.controller, {
-    AwsomeVideoProgressStyle progressStyle,
+    VideoProgressStyle progressStyle,
     this.allowScrubbing,
     this.padding = const EdgeInsets.only(top: 5.0),
-  }) : progressStyle = progressStyle ?? AwsomeVideoProgressStyle();
+  }) : progressStyle = progressStyle ?? VideoProgressStyle();
 
   final VideoPlayerController controller;
 
-  final AwsomeVideoProgressStyle progressStyle;
+  final VideoProgressStyle progressStyle;
 
   final bool allowScrubbing;
 
@@ -174,7 +174,7 @@ class _AwsomeVideoProgressIndicatorState extends State<AwsomeVideoProgressIndica
 
   VideoPlayerController get controller => widget.controller;
 
-  AwsomeVideoProgressStyle get colors => widget.progressStyle;
+  VideoProgressStyle get style => widget.progressStyle;
   
   @override
   void initState() {
@@ -195,7 +195,7 @@ class _AwsomeVideoProgressIndicatorState extends State<AwsomeVideoProgressIndica
       child: CustomPaint(
         painter: _ProgressBarPainter(
           controller.value,
-          AwsomeVideoProgressStyle()
+          style
         ),
         child: Container(),
       ),
