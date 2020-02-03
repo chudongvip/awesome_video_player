@@ -21,7 +21,7 @@ class VideoStyle {
         videoControlBarStyle = videoControlBarStyle ?? VideoControlBarStyle(),
         videoSubtitlesStyle = videoSubtitlesStyle ?? VideoSubtitles();
 
-  final VideoTopBarStyle videoTopBarStyle; //进度条样式
+  final VideoTopBarStyle videoTopBarStyle; //视频顶部样式
   final VideoControlBarStyle videoControlBarStyle; //进度条样式
   final VideoSubtitles videoSubtitlesStyle; //字幕样式
   // final String videoCover; //视频封面
