@@ -437,7 +437,7 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer> {
               ? Align(
                   alignment: Alignment.topLeft,
                   child: Container(
-                    height: 30,
+                    height: widget.videoStyle.videoTopBarStyle.height,
                     padding: widget.videoStyle.videoTopBarStyle.padding,
                     color: widget
                         .videoStyle.videoControlBarStyle.barBackgroundColor,
