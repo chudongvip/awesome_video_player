@@ -386,26 +386,26 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer> {
         onVerticalDragStart: (DragStartDetails details) {
         },
         onVerticalDragUpdate: (DragUpdateDetails details) {
-          if (details.globalPosition.dx >= (screenSize.width/2)) {//右侧垂直滑动
-            if (details.primaryDelta > 0) {//往下滑动
-              if (controller.value.volume <= 0 ) return;
-              controller.setVolume(controller.value.volume - 0.1);
-            } else {//往上滑动
-              if (controller.value.volume >= 1 ) return;
-              controller.setVolume(controller.value.volume + 0.1);
-            }
-            print(controller.value.volume);
-          } else {//左侧垂直滑动
-            if (details.primaryDelta > 0) {//往下滑动
-              if (brightness <= 0) return;
-              brightness -= 0.1;
-            } else {//往上滑动
-              if (brightness >= 1) return;
-              brightness += 0.1;  
-            }
-            print(brightness);
-            Screen.setBrightness(brightness);
-          }
+//           if (details.globalPosition.dx >= (screenSize.width/2)) {//右侧垂直滑动
+//             if (details.primaryDelta > 0) {//往下滑动
+//               if (controller.value.volume <= 0 ) return;
+//               controller.setVolume(controller.value.volume - 0.1);
+//             } else {//往上滑动
+//               if (controller.value.volume >= 1 ) return;
+//               controller.setVolume(controller.value.volume + 0.1);
+//             }
+//             print(controller.value.volume);
+//           } else {//左侧垂直滑动
+//             if (details.primaryDelta > 0) {//往下滑动
+//               if (brightness <= 0) return;
+//               brightness -= 0.1;
+//             } else {//往上滑动
+//               if (brightness >= 1) return;
+//               brightness += 0.1;  
+//             }
+//             print(brightness);
+//             Screen.setBrightness(brightness);
+//           }
         },
         onVerticalDragEnd: (DragEndDetails details) {
           // print("end === ");
