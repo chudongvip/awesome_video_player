@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:orientation/orientation.dart';
 import 'package:video_player/video_player.dart';
 import 'package:screen/screen.dart';
+import 'package:connectivity/connectivity.dart';
 
 import './video_style.dart';
 import './video_play_options.dart';
@@ -20,12 +21,14 @@ class AwsomeVideoPlayer extends StatefulWidget {
     VideoPlayOptions playOptions,
     VideoStyle videoStyle,
     this.children,
+    this.oninit,
     this.onplay,
     this.onpause,
     this.ontimeupdate,
     this.onended,
     this.onvolume,
     this.onbrightness,
+    this.onnetwork,
     this.onpop,
   })  : playOptions = playOptions ?? VideoPlayOptions(),
         videoStyle = videoStyle ?? VideoStyle(),
@@ -39,13 +42,15 @@ class AwsomeVideoPlayer extends StatefulWidget {
   final VideoStyle videoStyle;
   final List<Widget> children;
 
-  /// 回调事件
+  /// 
+  final VideoCallback<VideoPlayerController> oninit; //初始化完成回调事件
   final VideoCallback<VideoPlayerValue> onplay; //播放开始回调
   final VideoCallback<VideoPlayerValue> ontimeupdate; //播放开始回调
   final VideoCallback<VideoPlayerValue> onpause; //播放暂停回调
   final VideoCallback<VideoPlayerValue> onended; //播放结束回调
   final VideoCallback<double> onvolume; //播放声音大小回调
   final VideoCallback<double> onbrightness; //屏幕亮度回调
+  final VideoCallback<String> onnetwork; //屏幕亮度回调
   final VideoCallback<VideoPlayerValue> onpop; //顶部控制栏点击返回回调
 
   @override
@@ -58,7 +63,7 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer> {
 
   /// 是否全屏
   bool fullscreened = false;
-
+  var subscription;
   /// 获取屏幕大小
   Size get screenSize => MediaQuery.of(context).size;
 
@@ -111,6 +116,9 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer> {
         })
         ..initialize().then((_) {
           print("初始化完成");
+          if (widget.oninit != null) {
+            widget.oninit(controller);
+          }
           initialized = true;
           setState(() {});
           if (widget.playOptions.autoplay) {
@@ -127,7 +135,14 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer> {
   @override
   void initState() {
     super.initState();
-    
+    /// 网络监听
+    subscription = Connectivity().onConnectivityChanged.listen((ConnectivityResult result) {
+      // Got a new connectivity status!
+      if (widget.onnetwork != null) {
+        widget.onnetwork(result.toString().split('.')[1]);
+      }
+    });
+
     ///运行设备横竖屏
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
@@ -150,6 +165,7 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer> {
       DeviceOrientation.portraitUp,
     ]);
     Screen.keepOn(false);
+    subscription.cancel();
     super.dispose();
   }
 

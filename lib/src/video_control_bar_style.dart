@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import './video_progress_style.dart';
 
-/// 进度条样式
+/// 底部控制拦样式
 class VideoControlBarStyle {
   VideoControlBarStyle({
     this.height = 30,

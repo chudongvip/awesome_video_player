@@ -13,6 +13,7 @@ dependencies:
   video_player: ^0.10.5
   orientation: ^1.1.0
   screen: ^0.0.5
+  connectivity: ^0.4.6
 
 dev_dependencies:
   flutter_test:
