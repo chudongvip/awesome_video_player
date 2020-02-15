@@ -115,7 +115,7 @@
 | popIcon           | Widget       | 自定义返回按钮                            |
 | contents          | List<Widget>       | 拓展控制栏中部元素（宽度自适应： `Row`中的 `Expanded`）                            |
 | actions         | List<Widget>       | 拓展控制栏右侧控制元素                            |
-| customBar        | Widget       | 重写控制栏（如果设置了`customBar`, 除`show`属性意外上方属性均不生效）                           |
+| customBar        | Widget       | 重写控制栏（如果设置了`customBar`, 除`show`属性意外上方属性均不生效）,仅支持`Align`和`Positioned` |
 
 
 **控制栏自定义样式 (VideoControlBarStyle)：**

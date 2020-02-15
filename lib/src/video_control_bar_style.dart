@@ -11,6 +11,9 @@ class VideoControlBarStyle {
     this.bufferedColor = const Color.fromRGBO(50, 50, 200, 0.2),//几个版本后移除
     this.backgroundColor = const Color.fromRGBO(200, 200, 200, 0.5),//几个版本后移除
     this.barBackgroundColor = const Color.fromRGBO(0, 0, 0, 0.5),
+    this.timePadding = const EdgeInsets.symmetric(horizontal: 5),
+    this.timeFontSize = 8,
+    this.timeFontColor = const Color.fromRGBO(255, 255, 255, 1),
     this.playIcon = const Icon(
       Icons.play_circle_outline,
       size: 16,
@@ -64,6 +67,9 @@ class VideoControlBarStyle {
   final Color bufferedColor;
   final Color backgroundColor;
   final Color barBackgroundColor;
+  final EdgeInsets timePadding;
+  final double timeFontSize;
+  final Color timeFontColor;
   final Widget playIcon;
   final Widget pauseIcon;
   final Widget rewindIcon;

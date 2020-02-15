@@ -52,7 +52,9 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  String videoUrl = "https://www.runoob.com/try/demo_source/movie.mp4";
+  // String videoUrl = "https://www.runoob.com/try/demo_source/movie.mp4";
+  String videoUrl = "http://vodkgeyttp8.vod.126.net/cloudmusic/1241/core/e30b/aec700ee466da6c8ce51d12953e7b89f.mp4?wsSecret=a6d7342a3ea018d632b3d7ce56ffd11f&wsTime=1580815486";
+  // String videoUrl = "http://vod.anyrtc.cc/364c01b9c8ca4e46bd65e7307887341d/34688ef93da349628d5e4efacf8a5167-9fd7790c8f5862b09c350e4a916b203d.mp4";
 
   String mainSubtitles = ""; //主字幕
   String subSubtitles = ""; //辅字幕
@@ -69,6 +71,18 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
+
+    /// 更改视频播放链接DMEO
+    // Future.delayed(Duration(seconds: 10), () {
+    //   setState(() {
+    //     videoUrl = "";
+    //     Future.delayed(Duration(milliseconds: 100), () {
+    //       setState(() {
+    //         videoUrl = "https://www.runoob.com/try/demo_source/movie.mp4";
+    //       });
+    //     });
+    //   });
+    // });
   }
 
   @override
@@ -144,7 +158,31 @@ class _MyAppState extends State<MyApp> {
                         )
                       ], //自定义顶部控制栏右侧显示区域
                       /// 设置cusotmBar之后，以上属性均无效(除了`show`之外)
-                      // customBar: Text("123123132")
+                      // customBar: Positioned(
+                      //   top: 0,
+                      //   left: 0,
+                      //   right: 0,
+                      //   child: Container(
+                      //     width: double.infinity,
+                      //     height: 50,
+                      //     color: Colors.yellow,
+                      //     child: Text("12312312"),
+                      //   ),
+                      // ),
+                      // customBar: Align(
+                      //   alignment: Alignment.topLeft,
+                      //   child: Container(
+                      //     width: double.infinity,
+                      //     height: 30,
+                      //     color: Colors.yellow,
+                      //     child: GestureDetector(
+                      //       onTap: () {
+                      //         print("yes");
+                      //       },
+                      //       child: Text("123123132")
+                      //     )
+                      //   ),
+                      // ),
                     ),
 
                     /// 自定义底部控制栏
@@ -208,9 +246,11 @@ class _MyAppState extends State<MyApp> {
                         "rewind",
                         "play",
                         "forward",
+                        "position-time",//当前播放时间
                         "progress",//线条形进度条（与‘basic-progress’二选一）
                         // "basic-progress",//矩形进度条（与‘progress’二选一）
-                        "time",
+                        "duration-time",//视频总时长
+                        // "time",//格式：当前时间/视频总时长
                         "fullscreen"
                       ],
                     ),
@@ -311,6 +351,14 @@ class _MyAppState extends State<MyApp> {
                     // print("timeupdate ${value}");
                     // var position = value.position.inMilliseconds / 1000;
                     //根据 position 来判断当前显示的字幕
+                  },
+
+                  onvolume: (value) {
+                    print("onvolume ${value}");
+                  },
+
+                  onbrightness: (value) {
+                    print("onbrightness ${value}");
                   },
 
                   /// 顶部控制栏点击返回按钮

@@ -24,6 +24,8 @@ class AwsomeVideoPlayer extends StatefulWidget {
     this.onpause,
     this.ontimeupdate,
     this.onended,
+    this.onvolume,
+    this.onbrightness,
     this.onpop,
   })  : playOptions = playOptions ?? VideoPlayOptions(),
         videoStyle = videoStyle ?? VideoStyle(),
@@ -42,6 +44,8 @@ class AwsomeVideoPlayer extends StatefulWidget {
   final VideoCallback<VideoPlayerValue> ontimeupdate; //播放开始回调
   final VideoCallback<VideoPlayerValue> onpause; //播放暂停回调
   final VideoCallback<VideoPlayerValue> onended; //播放结束回调
+  final VideoCallback<double> onvolume; //播放声音大小回调
+  final VideoCallback<double> onbrightness; //屏幕亮度回调
   final VideoCallback<VideoPlayerValue> onpop; //顶部控制栏点击返回回调
 
   @override
@@ -85,8 +89,15 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer> {
 
               if (controller.value.isPlaying) {
                 setState(() {
-                  position = oPosition.toString().split('.')[0];
-                  duration = oDuration.toString().split('.')[0];
+                  if (oDuration.inHours == 0) {
+                    var strPosition = oPosition.toString().split('.')[0];
+                    var strDuration = oDuration.toString().split('.')[0];
+                    position = "${strPosition.split(':')[1]}:${strPosition.split(':')[2]}";
+                    duration = "${strDuration.split(':')[1]}:${strDuration.split(':')[2]}";
+                  } else {
+                    position = oPosition.toString().split('.')[0];
+                    duration = oDuration.toString().split('.')[0];
+                  }
                 });
               } else {
                 if (oPosition >= oDuration) {
@@ -116,10 +127,7 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer> {
   @override
   void initState() {
     super.initState();
-
-    brightness = 0.8;
-    Screen.setBrightness(brightness);
-
+    
     ///运行设备横竖屏
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
@@ -281,12 +289,32 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer> {
         ),
       ),
       "time": Padding(
-        padding: EdgeInsets.symmetric(horizontal: 5),
+        padding: widget.videoStyle.videoControlBarStyle.timePadding,
         child: Text(
           "$position / $duration",
           style: TextStyle(
-            color: Colors.white,
-            fontSize: 8,
+            color: widget.videoStyle.videoControlBarStyle.timeFontColor,
+            fontSize: widget.videoStyle.videoControlBarStyle.timeFontSize,
+          ),
+        ),
+      ),
+      "position-time": Padding(
+        padding: widget.videoStyle.videoControlBarStyle.timePadding,
+        child: Text(
+          "$position",
+          style: TextStyle(
+            color: widget.videoStyle.videoControlBarStyle.timeFontColor,
+            fontSize: widget.videoStyle.videoControlBarStyle.timeFontSize,
+          ),
+        ),
+      ),
+      "duration-time": Padding(
+        padding: widget.videoStyle.videoControlBarStyle.timePadding,
+        child: Text(
+          "$duration",
+          style: TextStyle(
+            color: widget.videoStyle.videoControlBarStyle.timeFontColor,
+            fontSize: widget.videoStyle.videoControlBarStyle.timeFontSize,
           ),
         ),
       ),
@@ -327,11 +355,23 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer> {
     final children = _videoFrame();
     children.addAll(_controlFrame());
     children.addAll(widget.children ?? []);
-    return AspectRatio(
-      aspectRatio: fullscreened
-          ? _calculateAspectRatio(context)
-          : widget.playOptions.aspectRatio,
-      child: Stack(children: children),
+    return WillPopScope(
+      onWillPop: () {
+        if (fullscreened) {
+          OrientationPlugin.forceOrientation(!fullscreened
+            ? DeviceOrientation.landscapeRight
+            : DeviceOrientation.portraitUp);
+            return new Future.value(false);
+        } else {
+          return new Future.value(true);
+        }
+      },
+      child: AspectRatio(
+        aspectRatio: fullscreened
+            ? _calculateAspectRatio(context)
+            : widget.playOptions.aspectRatio,
+        child: Stack(children: children),
+      ),
     );
   }
 
@@ -385,25 +425,40 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer> {
         /// 垂直滑动
         onVerticalDragStart: (DragStartDetails details) {
         },
-        onVerticalDragUpdate: (DragUpdateDetails details) {
+        onVerticalDragUpdate: (DragUpdateDetails details) async {
           if (details.globalPosition.dx >= (screenSize.width/2)) {//右侧垂直滑动
             if (details.primaryDelta > 0) {//往下滑动
               if (controller.value.volume <= 0 ) return;
-              controller.setVolume(controller.value.volume - 0.1);
+              var vol = controller.value.volume - 0.01;
+              if (widget.onvolume != null) {
+                widget.onvolume(vol);
+              }
+              controller.setVolume(vol);
             } else {//往上滑动
               if (controller.value.volume >= 1 ) return;
-              controller.setVolume(controller.value.volume + 0.1);
+              var vol = controller.value.volume + 0.01;
+              if (widget.onvolume != null) {
+                widget.onvolume(vol);
+              }
+              controller.setVolume(vol);
             }
-            print(controller.value.volume);
           } else {//左侧垂直滑动
+            if (brightness == null) {
+              brightness = await Screen.brightness;
+            }
             if (details.primaryDelta > 0) {//往下滑动
               if (brightness <= 0) return;
-              brightness -= 0.1;
+              brightness -= 0.01;
+              if (widget.onbrightness != null) {
+                widget.onbrightness(brightness);
+              }
             } else {//往上滑动
               if (brightness >= 1) return;
-              brightness += 0.1;  
+              brightness += 0.01;
+              if (widget.onbrightness != null) {
+                widget.onbrightness(brightness);
+              }
             }
-            print(brightness);
             Screen.setBrightness(brightness);
           }
         },
@@ -437,7 +492,7 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer> {
               ? Align(
                   alignment: Alignment.topLeft,
                   child: Container(
-                    height: 30,
+                    height: widget.videoStyle.videoTopBarStyle.height,
                     padding: widget.videoStyle.videoTopBarStyle.padding,
                     color: widget
                         .videoStyle.videoControlBarStyle.barBackgroundColor,
@@ -447,8 +502,14 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer> {
                         /// 左侧控制栏
                         GestureDetector(
                           onTap: () {
-                            if (widget.onpop != null) {
-                              widget.onpop(null);
+                            if (fullscreened) {
+                              OrientationPlugin.forceOrientation(!fullscreened
+                                ? DeviceOrientation.landscapeRight
+                                : DeviceOrientation.portraitUp);
+                            } else {
+                              if (widget.onpop != null) {
+                                widget.onpop(null);
+                              }
                             }
                           },
                           child: widget.videoStyle.videoTopBarStyle.popIcon,

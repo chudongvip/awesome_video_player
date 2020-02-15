@@ -17,7 +17,9 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
 
-  awsome_video_player:
+  awsome_video_player: 
+    # git: 
+    #   url: https://github.com/chudongvip/awsome_video_player.git
     path: ../
 
 # For information on the generic Dart part of this file, see the
