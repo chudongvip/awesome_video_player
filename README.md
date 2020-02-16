@@ -4,12 +4,10 @@
 
 那么什么叫高度自由的播放器呢？我是这么认为的：首先尽可能的开放权限来更改配置，其次模块化设计，同时还需要跟业务代码解耦，光有这些还不算够，最后我们需要让视频播放器实现自定义拓展，也就是说现有播放器功能满足不了自己需求的时候，开发者可以自己动手，例如视频的`字幕`，`弹幕`，`视频顶部控制栏`等。
 
-
-![](https://user-gold-cdn.xitu.io/2020/1/16/16fac7bf77ecd4ba?w=480&h=800&f=gif&s=4286938)
-
-<center>一张效果图</center>
+![一张效果图](https://user-gold-cdn.xitu.io/2020/1/16/16fac7bf77ecd4ba?w=480&h=800&f=gif&s=4286938)
 
 ### 快速通道
+
 - [Git地址](https://github.com/chudongvip/awsome_video_player)
 - [DEMO源码](https://github.com/chudongvip/awsome_video_player/tree/master/example)
 
@@ -59,8 +57,6 @@
 - 6.横竖屏切换
 - 7.常亮避免锁屏
 
-
-
 ### 一图胜千言
 
 ![](https://user-gold-cdn.xitu.io/2020/1/14/16fa3bf3d5f005e5?w=1217&h=763&f=png&s=42866)
@@ -73,14 +69,17 @@
 | ------------ | ---------------- | ------------------------------------------------------------ |
 | dataSource   | String           | 视频URL或媒体文件的路径                                      |
 | children     | List<Widget>     | 自定义拓展的子元素，需要使用 Widget`Align`（字幕、弹幕、视频顶部控制栏等） |
+| oninit       | VideoCallback    | 初始化完成回调                                              |
 | onplay       | VideoCallback    | 视频开始播放的回调                                           |
 | onpause      | VideoCallback    | 视频暂停播放回调                                             |
-| ontimeupdate | VideoCallback    | 视频播放进度回调（通过返回的value进行字幕匹配）              |
+| ontimeupdate | VideoCallback    | 视频播放进度回调（通过返回的value进行字幕匹配）                  |
 | onend        | VideoCallback    | 视频播放结束回调                                             |
-| playOptions  | VideoPlayOptions | 视频播放自定义配置（详情见下方的**Useage**）                 |
-| videoStyle   | VideoStyle       | 视频播放器自定义样式（详情见下方的**Useage**）               |
-
-
+| onvolume     | VideoCallback    | 播放声音大小变化回调                                          |
+| onbrightness | VideoCallback    | 屏幕亮度变化回调                                              |
+| onpop        | VideoCallback    | 顶部控制栏返回按钮点击回调                                     |
+| onnetwork    | VideoCallback    | 网络变化回调                                                 |
+| playOptions  | VideoPlayOptions | 视频播放自定义配置（详情见下方的**Useage**）                     |
+| videoStyle   | VideoStyle       | 视频播放器自定义样式（详情见下方的**Useage**）                   |
 
 **播放器自定义配置 (VideoPlayOptions)：**
 
@@ -88,53 +87,56 @@
 | -------------- | -------- | ----------------------------------------- |
 | startPosition  | Duration | 开始播放节点，例如：Duration(seconds: 0)) |
 | loop           | bool     | 是否循环播放                              |
-| seekSeconds    | num      | 设置视频快进/快退单位秒数                 |
+| seekSeconds    | num      | 设置视频快进/快退单位秒数，默认为`15s`       |
 | autoplay       | bool     | 是否自动播放                              |
-| aspectRatio    | num      | 视频播放比例，例如：16/9 或者 4/3         |
-| allowScrubbing | bool     | 是否运行进度条拖拽                        |
-
-
+| aspectRatio    | num      | 视频播放比例，例如：16/9 或者 4/3           |
+| allowScrubbing | bool     | 是否运行进度条拖拽                         |
 
 **播放器自定义样式 (VideoStyle)：**
 
 | 属性                 | 类型                 | 描述                                                         |
 | -------------------- | -------------------- | ------------------------------------------------------------ |
 | playIcon             | Widget               | 视频暂停播放时中央显示的图标，showPlayIcon为`false`时，该属性设置无效。 |
-| showPlayIcon         | bool                 | 暂停时是否显示播放按钮                                       |
-| videoControlBarStyle | VideoControlBarStyle | 控制栏自定义样式                                             |
-| videoSubtitlesStyle  | VideoSubtitles       | 字幕自定义样式                                               |
+| showPlayIcon         | bool                 | 暂停时是否显示播放按钮                                        |
+| videoTopBarStyle     | VideoTopBarStyle     | 视频顶部自定义样式（详情见下方的**Useage**）                    |
+| videoControlBarStyle | VideoControlBarStyle | 控制栏自定义样式（详情见下方的**Useage**）                      |
+| videoSubtitlesStyle  | VideoSubtitles       | 字幕自定义样式（详情见下方的**Useage**）                        |
 
 **自定义顶部控制栏 (VideoTopBarStyle)：**
 
 | 属性               | 类型         | 描述                                                         |
 | ------------------ | ------------ | ------------------------------------------------------------ |
-| barBackgroundColor | Color        | 控制栏背景颜色，默认为`Color.fromRGBO(0, 0, 0, 0.5)`         |
-| show        | bool        | 是否显示控制栏                        |
-| height      | double       | 自定义控制栏高度                        |
-| padding    | EdgeInsets        | 自定义边距                            |
-| popIcon           | Widget       | 自定义返回按钮                            |
-| contents          | List<Widget>       | 拓展控制栏中部元素（宽度自适应： `Row`中的 `Expanded`）                            |
-| actions         | List<Widget>       | 拓展控制栏右侧控制元素                            |
-| customBar        | Widget       | 重写控制栏（如果设置了`customBar`, 除`show`属性意外上方属性均不生效）,仅支持`Align`和`Positioned` |
+| show               | bool         | 是否显示控制栏                                                  |
+| barBackgroundColor | Color        | 控制栏背景颜色，默认为`Color.fromRGBO(0, 0, 0, 0.5)`             |
+| height             | double       | 自定义控制栏高度                                                |
+| padding            | EdgeInsets   | 自定义边距                                                     |
+| popIcon            | Widget       | 自定义返回按钮                                                  |
+| contents           | List<Widget> | 拓展控制栏中部元素（宽度自适应： `Row`中的 `Expanded`）             |
+| actions            | List<Widget> | 拓展控制栏右侧控制元素                                            |
+| customBar          | Widget       | 重写控制栏（如果设置了`customBar`, 除`show`属性意外上方属性均不生效）,仅支持`Align`和`Positioned` |
 
-
-**控制栏自定义样式 (VideoControlBarStyle)：**
+**自定义控制栏样式 (VideoControlBarStyle)：**
 
 | 属性               | 类型         | 描述                                                         |
 | ------------------ | ------------ | ------------------------------------------------------------ |
-| barBackgroundColor | Color        | 控制栏背景颜色，默认为`Color.fromRGBO(0, 0, 0, 0.5)`         |
+| height             | double       | 控制栏高度，默认为`30`                                          |
+| padding            | EdgeInsets   | 控制栏内边距，默认为`EdgeInsets.symmetric(vertical: 8, horizontal: 10)`|
 | progressStyle      | VideoProgressStyle| 自定义控制拦进度条样式                                 |
+| barBackgroundColor | Color        | 控制栏背景颜色，默认为`Color.fromRGBO(0, 0, 0, 0.5)`        |
+| timePadding        | EdgeInsets   | 视频时间的内边距，默认为`EdgeInsets.symmetric(horizontal: 5)`|
+| timeFontSize       | double       | 视频时间的字体大小，默认为`8`                                |
+| timeFontColor      | Color        | 视频时间的颜色，默认为`Color.fromRGBO(255, 255, 255, 1)`    |
 | playIcon           | Widget       | 控制栏播放图标（下`图3`详细说明）                            |
 | pauseIcon          | Widget       | 控制栏暂停图标（下`图3`详细说明）                            |
 | rewindIcon         | Widget       | 控制栏快退图标（下`图3`详细说明）                            |
 | forwardIcon        | Widget       | 控制栏快进图标（下`图3`详细说明）                            |
 | fullscreenIcon     | Widget       | 控制栏全屏图标（下`图3`详细说明）                            |
-| fullscreenExitIcon | Widget       | 控制栏取消全屏图标（下`图3`详细说明）                        |
-| itemList           | List<String> | 控制栏自定义功能（下`图4`详细说明），默认为["rewind", "play", "forward",  "progress", "time", "fullscreen"]。如果我们需要调整控制栏显示的顺序，仅需要调整 list 中字符串的顺序，如果需要删减，直接从 list 中移除改字符串即可，例如移除快进和快退，则讲 list 设置为 ["play", "progress", "basic-progress",  "time", "fullscreen"] 即可。后面会陆续开放自定义元素，也就是你把你的元素加入到 list 中。 |
-
+| fullscreenExitIcon | Widget       | 控制栏取消全屏图标（下`图3`详细说明）                         |
+| itemList           | List<String> | 控制栏自定义功能（下`图4`详细说明），默认为["rewind", "play", "forward", "position-time", "progress",  "duration-time", "fullscreen"]。如果我们需要调整控制栏显示的顺序，仅需要调整 list 中字符串的顺序，如果需要删减，直接从 list 中移除改字符串即可，例如移除快进和快退，则讲 list 设置为 ["play", "progress","position-time", "progress",  "duration-time", "fullscreen"] 即可。后面会陆续开放自定义元素，也就是你把你的元素加入到 list 中。 |
 
 **自定义进度条样式 (VideoProgressStyle) ：**
-| 属性               | 类型         | 描述                                                         |
+
+| 属性                | 类型         | 描述                                                        |
 | ------------------ | ------------ | ---------------------------------------------------------- |
 | padding            | EdgeInsets   | 进度条边距（`itemList`中包含`progress`有效）                   |
 | height             | double       | 进度条高度（`itemList`中包含`progress`有效）                   |
@@ -145,8 +147,22 @@
 | backgroundColor    | Color        | 进度条背景颜色（下`图2`详细说明）                               |
 | dragBarColor       | Color        | 进度条拖拽按钮演示（`itemList`中包含`progress`有效）            |
 
+**自定义控制栏功能 (itemList) ：**
+
+| 属性               | 类型         | 描述                                                         |
+| ------------------ | ------------ | ---------------------------------------------------------- |
+| rewind             | String       | 快退功能，对应`VideoControlBarStyle`的`rewindIcon`图标         |
+| play               | String       | 播放/暂停功能，对应`VideoControlBarStyle`的`playIcon` `pauseIcon`图标   |
+| forward            | String       | 快进功能，对应`VideoControlBarStyle`的`forwardIcon`图标                |
+| progress           | String       | 线条形进度条（与‘basic-progress’二选一），由`VideoControlBarStyle`的`progressStyle`控制样式 |
+| basic-progress     | String       | 矩形进度条（与‘progress’二选一），由`VideoControlBarStyle`的`progressStyle`控制样式       |
+| time               | String       | 时间格式：当前时间/视频总时长（与`position-time`和`duration-time`二选一），由`VideoControlBarStyle`的`timePadding` `timeFontSize` `timeFontColor`控制样式 |
+| position-time      | String       | 当前播放时间，样式控制与`time`相同   |
+| duration-time      | String       | 视频总时长，样式控制与`time`相同     |
+| fullscreen         | String       | 全屏/小屏功能，对应`VideoControlBarStyle`的 `fullscreenIcon` `fullscreenExitIcon`图标         |
 
 ![图1](https://user-gold-cdn.xitu.io/2020/1/16/16fac611e431fe0e?w=876&h=527&f=png&s=30069)
+
 <center><i>图1</i></center>
 
 ![控制栏颜色自定义](https://user-gold-cdn.xitu.io/2020/1/14/16fa3bfbc4f63f60?w=960&h=402&f=png&s=24998)
@@ -161,7 +177,7 @@
 
 <center><i>图4</i></center>
 
-# 如何使用？
+# 如何使用?
 
 ## Install & Set up
 
@@ -173,14 +189,14 @@
 
 2. 安装依赖（如果已经自动安装请忽略）
 
-   ```
+   ```dart
    cd 项目目录
    flutter packages get
    ```
 
 3. 在页面中引入库
 
-   ```
+   ```dart
    import 'package:awsome_video_player/awsome_video_player.dart';
    ```
 
@@ -190,9 +206,8 @@
 
 main.dart
 
-```
+```dart
 import 'package:flutter/material.dart';
-
 import 'package:awsome_video_player/awsome_video_player.dart';
 
 void main() => runApp(MyApp());
@@ -230,7 +245,7 @@ class _MyAppState extends State<MyApp> {
               autoplay: true,
               allowScrubbing: true,
               startPosition: Duration(seconds: 0)),
-            /// 自定义视频样式              
+            /// 自定义视频样式
             videoStyle: VideoStyle(
             	/// 自定义视频暂停时视频中部的播放按钮
               playIcon: Icon(
@@ -238,10 +253,10 @@ class _MyAppState extends State<MyApp> {
                 size: 100,
                 color: Colors.white,
               ),
-              /// 暂停时是否显示视频中部播放按钮              
+              /// 暂停时是否显示视频中部播放按钮
               showPlayIcon: true,
-              /// 自定义底部控制栏              
-              videoControlBarStyle: VideoControlBarStyle(       
+              /// 自定义底部控制栏
+              videoControlBarStyle: VideoControlBarStyle(
                 /// 自定义颜色
                 //barBackgroundColor: Colors.blue,
                 /// 自定义进度条样式
@@ -257,8 +272,8 @@ class _MyAppState extends State<MyApp> {
                 ),
                 /// 更改进度栏的播放按钮
                 playIcon: Icon(
-                  Icons.play_arrow, 
-                  color: Colors.white, 
+                  Icons.play_arrow,
+                  color: Colors.white,
                   size: 16
                 ),
                 /// 更改进度栏的暂停按钮
@@ -296,9 +311,11 @@ class _MyAppState extends State<MyApp> {
                   "rewind",
                   "play",
                   "forward",
+                  "position-time", //当前播放时间
                   "progress",//线形进度条
                   //"basic-progress",//矩形进度条
-                  "time",
+                  "duration-time", //视频总时长
+                  // "time", //格式：当前时间/视频总时长
                   "fullscreen"
                 ],
               ),
@@ -332,7 +349,6 @@ class _MyAppState extends State<MyApp> {
             ),
             /// 自定义拓展元素
             children: [
-
               /// 这个将会覆盖的视频内容，因为这个层级是最高级，因此手势会失效(慎用)
               /// 这个可以用来做视频广告
               // Positioned(
@@ -343,13 +359,17 @@ class _MyAppState extends State<MyApp> {
               //   child: Text("data", style: TextStyle(color: Colors.white),),
               // ),
             ],
-            /// 视频暂停回调
-            onpause: (value) {
-              print("video paused");
+            /// 视频初始化完成回调
+            oninit: (val) {
+              print("video oninit");
             },
             /// 视频播放回调
             onplay: (value) {
               print("video played");
+            },
+            /// 视频暂停回调
+            onpause: (value) {
+              print("video paused");
             },
             /// 视频播放结束回调
             onended: (value) {
@@ -358,9 +378,25 @@ class _MyAppState extends State<MyApp> {
             /// 视频播放进度回调
             /// 可以用来匹配字幕
             ontimeupdate: (value) {
-              print("timeupdate ${value}");
+              print("timeupdate $value");
               var position = value.position.inMilliseconds / 1000;
               //根据 position 来判断当前显示的字幕
+            },
+            /// 声音变化回调
+            onvolume: (value) {
+              print("onvolume $value");
+            },
+            /// 亮度变化回调
+            onbrightness: (value) {
+              print("onbrightness $value");
+            },
+            /// 网络变化回调
+            onnetwork: (value) {
+              print("onbrightness $value");
+            },
+            /// 顶部控制栏点击返回按钮
+            onpop: (value) {
+              print("返回上一页");
             },
           ),
         ),
@@ -370,8 +406,6 @@ class _MyAppState extends State<MyApp> {
 }
 ```
 
-
-
 # DEMO示例
 
 #### 1. 自定义控制栏图标
@@ -380,9 +414,8 @@ class _MyAppState extends State<MyApp> {
 
 >DEMO: main.dart
 
-```
+```dart
 import 'package:flutter/material.dart';
-
 import 'package:awsome_video_player/awsome_video_player.dart';
 
 void main() => runApp(MyApp());
@@ -415,11 +448,11 @@ class _MyAppState extends State<MyApp> {
             /// 自定义视频样式 - 请注意我要划重点了
             videoStyle: VideoStyle(
               /// 自定义底部控制栏  - 这是重点了
-              videoControlBarStyle: VideoControlBarStyle(       
+              videoControlBarStyle: VideoControlBarStyle(
                 /// 更改进度栏的播放按钮
                 playIcon: Icon(
-                  Icons.play_arrow, 
-                  color: Colors.white, 
+                  Icons.play_arrow,
+                  color: Colors.white,
                   size: 16
                 ),
                 /// 更改进度栏的暂停按钮
@@ -460,9 +493,7 @@ class _MyAppState extends State<MyApp> {
     );
   }
 }
-
 ```
-
 
 #### 2. 自定义控制栏元素和顺序
 
@@ -470,7 +501,7 @@ class _MyAppState extends State<MyApp> {
 
 >DEMO: main.dart
 
-```
+```dart
 import 'package:flutter/material.dart';
 
 import 'package:awsome_video_player/awsome_video_player.dart';
@@ -505,7 +536,7 @@ class _MyAppState extends State<MyApp> {
             /// 自定义视频样式 - 请注意我要划重点了
             videoStyle: VideoStyle(
               /// 自定义底部控制栏  - 这是重点了
-              videoControlBarStyle: VideoControlBarStyle(       
+              videoControlBarStyle: VideoControlBarStyle(
                 /// 决定控制栏的元素以及排序，示例见上方图3
                 itemList: [
                   "progress",// 这里将进度条前置了，因此有了图3的效果
@@ -525,17 +556,14 @@ class _MyAppState extends State<MyApp> {
 }
 ```
 
-
-
 #### 3. 自定义进度条以及控制栏的背景颜色
 
 同样我们还是通过`videoStyle`中`videoControlBarStyle`来自定义进度条的颜色（见上方图3）。
 
 >DEMO: main.dart
 
-```
+```dart
 import 'package:flutter/material.dart';
-
 import 'package:awsome_video_player/awsome_video_player.dart';
 
 void main() => runApp(MyApp());
@@ -570,10 +598,10 @@ class _MyAppState extends State<MyApp> {
               autoplay: true,
               allowScrubbing: true,
               startPosition: Duration(seconds: 0)),
-            /// 自定义视频样式              
+            /// 自定义视频样式
             videoStyle: VideoStyle(
-              /// 自定义底部控制栏              
-              videoControlBarStyle: VideoControlBarStyle(       
+              /// 自定义底部控制栏
+              videoControlBarStyle: VideoControlBarStyle(
                 /// 自定义颜色
                 barBackgroundColor: Colors.blue,//控制栏的背景颜色
 
@@ -588,7 +616,6 @@ class _MyAppState extends State<MyApp> {
                   progressRadius: 2,//进度条为`progress`时有效，如果时`basic-progress`则无效
                   dragHeight: 5//进度条为`progress`时有效，如果时`basic-progress`则无效
                 ),
-                
               ),
             ),
           ),
@@ -609,9 +636,8 @@ class _MyAppState extends State<MyApp> {
 
 >DEMO: main.dart
 
-```
+```dart
 import 'package:flutter/material.dart';
-
 import 'package:awsome_video_player/awsome_video_player.dart';
 
 void main() => runApp(MyApp());
@@ -696,7 +722,6 @@ class _MyAppState extends State<MyApp> {
                       /// 设置cusotmBar之后，以上属性均无效(除了`show`之外)
                       // customBar: Text("123123132")
                     ),
-                    
                   ),
 
                   /// 顶部控制栏点击返回按钮
@@ -718,18 +743,14 @@ class _MyAppState extends State<MyApp> {
 
 ```
 
-
-
-
 ### 注意事项（Q&A）
 
 - 视频如果需要横竖屏不能使用safeArea
 
 - 视频的 `dataSoure`不能为空，为空时使用加载视图，否则播放器会报错
 
-  ```
+  ```dart
   import 'package:flutter/material.dart';
-  
   import 'package:awsome_video_player/awsome_video_player.dart';
   
   void main() => runApp(MyApp());
@@ -782,18 +803,15 @@ class _MyAppState extends State<MyApp> {
   
   ```
 
-
 - `AwsomeVideoPlayer`下面的`children`仅支持`Align`和`Positioned`，children的层级会高于下面，这个功能会持续更新，后面会陆续出一些针对自定义拓展的高阶文档。
-
-
 
 # 写在最后
 
 开发过程中遇到问题，请通过以下方式联系我，我会第一时间回复你：
+
 - 请通过下面的微信或者微信群进行提问
 - 或者[点击这里](https://github.com/chudongvip/awsome_video_player/issues/new?title=\[Question%20report%20\]%20XXX%20&body=%3C!--%20generated%20by%20README%20--%3E)提问题
-- [点击这里](https://github.com/chudongvip/awsome_video_player/issues/new?title=[Bug%20report]%20XXX%20&body)上报BUG 
-
+- [点击这里](https://github.com/chudongvip/awsome_video_player/issues/new?title=[Bug%20report]%20XXX%20&body)上报BUG
 ![](https://user-gold-cdn.xitu.io/2020/1/14/16fa3c3f3a1a0851?w=285&h=283&f=png&s=41025)
 
 <center>我的微信</center>
