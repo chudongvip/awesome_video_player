@@ -6,10 +6,10 @@ class VideoControlBarStyle {
   VideoControlBarStyle({
     this.height = 30,
     this.padding = const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-    VideoProgressStyle progressStyle,//进度条样式
-    this.playedColor = const Color.fromRGBO(255, 0, 0, 0.7),//几个版本后移除
-    this.bufferedColor = const Color.fromRGBO(50, 50, 200, 0.2),//几个版本后移除
-    this.backgroundColor = const Color.fromRGBO(200, 200, 200, 0.5),//几个版本后移除
+    VideoProgressStyle progressStyle, //进度条样式
+    this.playedColor = const Color.fromRGBO(255, 0, 0, 0.7), //几个版本后移除
+    this.bufferedColor = const Color.fromRGBO(50, 50, 200, 0.2), //几个版本后移除
+    this.backgroundColor = const Color.fromRGBO(200, 200, 200, 0.5), //几个版本后移除
     this.barBackgroundColor = const Color.fromRGBO(0, 0, 0, 0.5),
     this.timePadding = const EdgeInsets.symmetric(horizontal: 5),
     this.timeFontSize = 8,

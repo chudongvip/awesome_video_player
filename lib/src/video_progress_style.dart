@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 class VideoProgressStyle {
-
   VideoProgressStyle({
     this.padding = const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
     this.playedColor = const Color.fromRGBO(255, 0, 0, 0.7),

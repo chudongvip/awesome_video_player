@@ -80,7 +80,6 @@ class _ProgressBarPainter extends CustomPainter {
   //绘制流程
   @override
   void paint(Canvas canvas, Size size) {
-    
     final baseOffset = size.height / 2 - style.height / 2.0;
 
     canvas.drawRRect(
@@ -157,10 +156,12 @@ class AwsomeVideoProgressIndicator extends StatefulWidget {
   final EdgeInsets padding;
 
   @override
-  _AwsomeVideoProgressIndicatorState createState() => _AwsomeVideoProgressIndicatorState();
+  _AwsomeVideoProgressIndicatorState createState() =>
+      _AwsomeVideoProgressIndicatorState();
 }
 
-class _AwsomeVideoProgressIndicatorState extends State<AwsomeVideoProgressIndicator> {
+class _AwsomeVideoProgressIndicatorState
+    extends State<AwsomeVideoProgressIndicator> {
   _AwsomeVideoProgressIndicatorState() {
     listener = () {
       if (!mounted) {
@@ -175,7 +176,7 @@ class _AwsomeVideoProgressIndicatorState extends State<AwsomeVideoProgressIndica
   VideoPlayerController get controller => widget.controller;
 
   VideoProgressStyle get style => widget.progressStyle;
-  
+
   @override
   void initState() {
     super.initState();
@@ -193,10 +194,7 @@ class _AwsomeVideoProgressIndicatorState extends State<AwsomeVideoProgressIndica
     return _VideoScrubber(
       controller: controller,
       child: CustomPaint(
-        painter: _ProgressBarPainter(
-          controller.value,
-          style
-        ),
+        painter: _ProgressBarPainter(controller.value, style),
         child: Container(),
       ),
     );

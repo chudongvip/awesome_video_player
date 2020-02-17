@@ -42,7 +42,7 @@ class AwsomeVideoPlayer extends StatefulWidget {
   final VideoStyle videoStyle;
   final List<Widget> children;
 
-  /// 
+  ///
   final VideoCallback<VideoPlayerController> oninit; //初始化完成回调事件
   final VideoCallback<VideoPlayerValue> onplay; //播放开始回调
   final VideoCallback<VideoPlayerValue> ontimeupdate; //播放开始回调
@@ -64,6 +64,7 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer> {
   /// 是否全屏
   bool fullscreened = false;
   var subscription;
+
   /// 获取屏幕大小
   Size get screenSize => MediaQuery.of(context).size;
 
@@ -97,8 +98,10 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer> {
                   if (oDuration.inHours == 0) {
                     var strPosition = oPosition.toString().split('.')[0];
                     var strDuration = oDuration.toString().split('.')[0];
-                    position = "${strPosition.split(':')[1]}:${strPosition.split(':')[2]}";
-                    duration = "${strDuration.split(':')[1]}:${strDuration.split(':')[2]}";
+                    position =
+                        "${strPosition.split(':')[1]}:${strPosition.split(':')[2]}";
+                    duration =
+                        "${strDuration.split(':')[1]}:${strDuration.split(':')[2]}";
                   } else {
                     position = oPosition.toString().split('.')[0];
                     duration = oDuration.toString().split('.')[0];
@@ -135,8 +138,11 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer> {
   @override
   void initState() {
     super.initState();
+
     /// 网络监听
-    subscription = Connectivity().onConnectivityChanged.listen((ConnectivityResult result) {
+    subscription = Connectivity()
+        .onConnectivityChanged
+        .listen((ConnectivityResult result) {
       // Got a new connectivity status!
       if (widget.onnetwork != null) {
         widget.onnetwork(result.toString().split('.')[1]);
@@ -248,9 +254,14 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer> {
       controller,
       allowScrubbing: widget.playOptions.allowScrubbing,
       colors: VideoProgressColors(
-        playedColor: widget.videoStyle.videoControlBarStyle.playedColor ?? widget.videoStyle.videoControlBarStyle.progressStyle.playedColor,
-        bufferedColor: widget.videoStyle.videoControlBarStyle.bufferedColor ?? widget.videoStyle.videoControlBarStyle.progressStyle.bufferedColor,
-        backgroundColor: widget.videoStyle.videoControlBarStyle.backgroundColor ?? widget.videoStyle.videoControlBarStyle.progressStyle.backgroundColor,
+        playedColor: widget.videoStyle.videoControlBarStyle.playedColor ??
+            widget.videoStyle.videoControlBarStyle.progressStyle.playedColor,
+        bufferedColor: widget.videoStyle.videoControlBarStyle.bufferedColor ??
+            widget.videoStyle.videoControlBarStyle.progressStyle.bufferedColor,
+        backgroundColor:
+            widget.videoStyle.videoControlBarStyle.backgroundColor ??
+                widget.videoStyle.videoControlBarStyle.progressStyle
+                    .backgroundColor,
       ),
       padding: widget.videoStyle.videoControlBarStyle.progressStyle.padding,
     );
@@ -258,12 +269,10 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer> {
 
   ///线条视频进度条
   Widget lineVideoProgress() {
-    return AwsomeVideoProgressIndicator(
-      controller,
-      allowScrubbing: widget.playOptions.allowScrubbing,
-      padding: widget.videoStyle.videoControlBarStyle.progressStyle.padding,
-      progressStyle: widget.videoStyle.videoControlBarStyle.progressStyle
-    );
+    return AwsomeVideoProgressIndicator(controller,
+        allowScrubbing: widget.playOptions.allowScrubbing,
+        padding: widget.videoStyle.videoControlBarStyle.progressStyle.padding,
+        progressStyle: widget.videoStyle.videoControlBarStyle.progressStyle);
   }
 
   /// 动态生成进度条组件
@@ -375,9 +384,9 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer> {
       onWillPop: () {
         if (fullscreened) {
           OrientationPlugin.forceOrientation(!fullscreened
-            ? DeviceOrientation.landscapeRight
-            : DeviceOrientation.portraitUp);
-            return new Future.value(false);
+              ? DeviceOrientation.landscapeRight
+              : DeviceOrientation.portraitUp);
+          return new Future.value(false);
         } else {
           return new Future.value(true);
         }
@@ -405,98 +414,103 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer> {
   List<Widget> _videoFrame() {
     return [
       GestureDetector(
-        onTap: () {
-          //显示或隐藏菜单栏和进度条
-          toggleControls();
-        },
-        //双击
-        onDoubleTap: () {
-          if (!controller.value.initialized) return;
-          togglePlay();
-        },
-        /// 水平滑动
-        onHorizontalDragStart: (DragStartDetails details) {
-          if (!controller.value.initialized) return;
-          if (controller.value.isPlaying) {
-            controller.pause();
-          }
-        },
-        onHorizontalDragUpdate: (DragUpdateDetails details) {
-          if (!controller.value.initialized) return;
-          if (!showMeau) {
-            setState(() {
-              showMeau = true;
-            });
-            createHideControlbarTimer();
-          }
-          var currentPosition = controller.value.position;
-          controller.seekTo(Duration(
-            milliseconds: details.primaryDelta > 0 ? currentPosition.inMilliseconds + 100 : currentPosition.inMilliseconds - 100 ));
-        },
-        onHorizontalDragEnd: (DragEndDetails details) {
-          if (!controller.value.isPlaying) {
-            controller.play();
-          }
-        },
-        /// 垂直滑动
-        onVerticalDragStart: (DragStartDetails details) {
-        },
-        onVerticalDragUpdate: (DragUpdateDetails details) async {
-          if (details.globalPosition.dx >= (screenSize.width/2)) {//右侧垂直滑动
-            if (details.primaryDelta > 0) {//往下滑动
-              if (controller.value.volume <= 0 ) return;
-              var vol = controller.value.volume - 0.01;
-              if (widget.onvolume != null) {
-                widget.onvolume(vol);
-              }
-              controller.setVolume(vol);
-            } else {//往上滑动
-              if (controller.value.volume >= 1 ) return;
-              var vol = controller.value.volume + 0.01;
-              if (widget.onvolume != null) {
-                widget.onvolume(vol);
-              }
-              controller.setVolume(vol);
+          onTap: () {
+            //显示或隐藏菜单栏和进度条
+            toggleControls();
+          },
+          //双击
+          onDoubleTap: () {
+            if (!controller.value.initialized) return;
+            togglePlay();
+          },
+
+          /// 水平滑动
+          onHorizontalDragStart: (DragStartDetails details) {
+            if (!controller.value.initialized) return;
+            if (controller.value.isPlaying) {
+              controller.pause();
             }
-          } else {//左侧垂直滑动
-            if (brightness == null) {
-              brightness = await Screen.brightness;
+          },
+          onHorizontalDragUpdate: (DragUpdateDetails details) {
+            if (!controller.value.initialized) return;
+            if (!showMeau) {
+              setState(() {
+                showMeau = true;
+              });
+              createHideControlbarTimer();
             }
-            if (details.primaryDelta > 0) {//往下滑动
-              if (brightness <= 0) return;
-              brightness -= 0.01;
-              if (widget.onbrightness != null) {
-                widget.onbrightness(brightness);
-              }
-            } else {//往上滑动
-              if (brightness >= 1) return;
-              brightness += 0.01;
-              if (widget.onbrightness != null) {
-                widget.onbrightness(brightness);
-              }
+            var currentPosition = controller.value.position;
+            controller.seekTo(Duration(
+                milliseconds: details.primaryDelta > 0
+                    ? currentPosition.inMilliseconds + 100
+                    : currentPosition.inMilliseconds - 100));
+          },
+          onHorizontalDragEnd: (DragEndDetails details) {
+            if (!controller.value.isPlaying) {
+              controller.play();
             }
-            Screen.setBrightness(brightness);
-          }
-        },
-        onVerticalDragEnd: (DragEndDetails details) {
-          // print("end === ");
-          // print(details);
-        },
-        child: ClipRect(
-          child: Container(
+          },
+
+          /// 垂直滑动
+          onVerticalDragStart: (DragStartDetails details) {},
+          onVerticalDragUpdate: (DragUpdateDetails details) async {
+            if (details.globalPosition.dx >= (screenSize.width / 2)) {
+              //右侧垂直滑动
+              if (details.primaryDelta > 0) {
+                //往下滑动
+                if (controller.value.volume <= 0) return;
+                var vol = controller.value.volume - 0.01;
+                if (widget.onvolume != null) {
+                  widget.onvolume(vol);
+                }
+                controller.setVolume(vol);
+              } else {
+                //往上滑动
+                if (controller.value.volume >= 1) return;
+                var vol = controller.value.volume + 0.01;
+                if (widget.onvolume != null) {
+                  widget.onvolume(vol);
+                }
+                controller.setVolume(vol);
+              }
+            } else {
+              //左侧垂直滑动
+              if (brightness == null) {
+                brightness = await Screen.brightness;
+              }
+              if (details.primaryDelta > 0) {
+                //往下滑动
+                if (brightness <= 0) return;
+                brightness -= 0.01;
+                if (widget.onbrightness != null) {
+                  widget.onbrightness(brightness);
+                }
+              } else {
+                //往上滑动
+                if (brightness >= 1) return;
+                brightness += 0.01;
+                if (widget.onbrightness != null) {
+                  widget.onbrightness(brightness);
+                }
+              }
+              Screen.setBrightness(brightness);
+            }
+          },
+          onVerticalDragEnd: (DragEndDetails details) {
+            // print("end === ");
+            // print(details);
+          },
+          child: ClipRect(
+              child: Container(
             width: double.infinity,
             height: double.infinity,
             color: Colors.black,
             child: Center(
-              child: AspectRatio(
-                aspectRatio: controller.value.aspectRatio,
-                  child: VideoPlayer(controller),
-              )
-            ),
-          )
-          
-        )
-      )
+                child: AspectRatio(
+              aspectRatio: controller.value.aspectRatio,
+              child: VideoPlayer(controller),
+            )),
+          )))
     ];
   }
 
@@ -520,8 +534,8 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer> {
                           onTap: () {
                             if (fullscreened) {
                               OrientationPlugin.forceOrientation(!fullscreened
-                                ? DeviceOrientation.landscapeRight
-                                : DeviceOrientation.portraitUp);
+                                  ? DeviceOrientation.landscapeRight
+                                  : DeviceOrientation.portraitUp);
                             } else {
                               if (widget.onpop != null) {
                                 widget.onpop(null);
