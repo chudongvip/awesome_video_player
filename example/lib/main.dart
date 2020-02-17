@@ -361,6 +361,10 @@ class _MyAppState extends State<MyApp> {
                     print("onbrightness ${value}");
                   },
 
+                  onfullscreen: (fullscreen) {
+                    print("is fullscreen $fullscreen");
+                  },
+
                   /// 顶部控制栏点击返回按钮
                   onpop: (value) {
                     print("返回上一页");

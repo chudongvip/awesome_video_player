@@ -29,6 +29,7 @@ class AwsomeVideoPlayer extends StatefulWidget {
     this.onvolume,
     this.onbrightness,
     this.onnetwork,
+    this.onfullscreen,
     this.onpop,
   })  : playOptions = playOptions ?? VideoPlayOptions(),
         videoStyle = videoStyle ?? VideoStyle(),
@@ -51,6 +52,7 @@ class AwsomeVideoPlayer extends StatefulWidget {
   final VideoCallback<double> onvolume; //播放声音大小回调
   final VideoCallback<double> onbrightness; //屏幕亮度回调
   final VideoCallback<String> onnetwork; //屏幕亮度回调
+  final VideoCallback<bool> onfullscreen; //屏幕亮度回调
   final VideoCallback<VideoPlayerValue> onpop; //顶部控制栏点击返回回调
 
   @override
@@ -345,11 +347,14 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer> {
       ),
       "fullscreen": GestureDetector(
         onTap: () {
-          OrientationPlugin.forceOrientation(!fullscreened
-              ? DeviceOrientation.landscapeRight
-              : DeviceOrientation.portraitUp);
           setState(() {
             fullscreened = !fullscreened;
+            if (widget.onfullscreen != null) {
+              widget.onfullscreen(fullscreened);
+            }
+            OrientationPlugin.forceOrientation(fullscreened
+                ? DeviceOrientation.landscapeRight
+                : DeviceOrientation.portraitUp);
           });
         },
         child: fullscreened
@@ -370,9 +375,9 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer> {
 
   @override
   Widget build(BuildContext context) {
-    setState(() {
-      fullscreened = screenSize.width > screenSize.height;
-    });
+    // setState(() {
+    //   fullscreened = screenSize.width > screenSize.height;
+    // });
 
     if (!initialized) return _defaultFrame();
 
@@ -383,9 +388,15 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer> {
     return WillPopScope(
       onWillPop: () {
         if (fullscreened) {
-          OrientationPlugin.forceOrientation(!fullscreened
-              ? DeviceOrientation.landscapeRight
-              : DeviceOrientation.portraitUp);
+          setState(() {
+            fullscreened = !fullscreened;
+            if (widget.onfullscreen != null) {
+              widget.onfullscreen(fullscreened);
+            }
+            OrientationPlugin.forceOrientation(fullscreened
+                ? DeviceOrientation.landscapeRight
+                : DeviceOrientation.portraitUp);
+          });
           return new Future.value(false);
         } else {
           return new Future.value(true);
@@ -533,9 +544,15 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer> {
                         GestureDetector(
                           onTap: () {
                             if (fullscreened) {
-                              OrientationPlugin.forceOrientation(!fullscreened
-                                  ? DeviceOrientation.landscapeRight
-                                  : DeviceOrientation.portraitUp);
+                              setState(() {
+                                fullscreened = !fullscreened;
+                                if (widget.onfullscreen != null) {
+                                  widget.onfullscreen(fullscreened);
+                                }
+                                OrientationPlugin.forceOrientation(fullscreened
+                                    ? DeviceOrientation.landscapeRight
+                                    : DeviceOrientation.portraitUp);
+                              });
                             } else {
                               if (widget.onpop != null) {
                                 widget.onpop(null);

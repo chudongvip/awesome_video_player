@@ -78,6 +78,7 @@
 | onbrightness | VideoCallback    | 屏幕亮度变化回调                                              |
 | onpop        | VideoCallback    | 顶部控制栏返回按钮点击回调                                     |
 | onnetwork    | VideoCallback    | 网络变化回调                                                 |
+| onfullscreen | VideoCallback    | 视频是否全屏回调                                              |
 | playOptions  | VideoPlayOptions | 视频播放自定义配置（详情见下方的**Useage**）                     |
 | videoStyle   | VideoStyle       | 视频播放器自定义样式（详情见下方的**Useage**）                   |
 
