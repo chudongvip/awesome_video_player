@@ -60,6 +60,7 @@ class _MyAppState extends State<MyApp> {
   String subSubtitles = ""; //辅字幕
   bool _isPlaying = false;
 
+  bool showAppBar = true;
   bool showAdvertCover = false;//是否显示广告
 
   bool get isPlaying => _isPlaying;
@@ -89,9 +90,9 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        appBar: AppBar(
+        appBar: showAppBar ? AppBar(
           title: const Text('Awsome video player'),
-        ),
+        ) : null,
         body: Center(
           child: videoUrl != ""
               ? AwsomeVideoPlayer(
@@ -363,6 +364,9 @@ class _MyAppState extends State<MyApp> {
 
                   onfullscreen: (fullscreen) {
                     print("is fullscreen $fullscreen");
+                    setState(() {
+                      showAppBar = !fullscreen;
+                    });
                   },
 
                   /// 顶部控制栏点击返回按钮
