@@ -1,3 +1,6 @@
+## awesome_video_player
+[![pub package](https://img.shields.io/pub/v/awsome_video_player.svg)](https://pub.dartlang.org/packages/awsome_video_player)
+
 ### 写在前面
 
 我们往往写项目都是着急上手，总想着先写后面有时间了再（说）来（的）优（好）化（听），这样写出来的代码往往都是跟业务系统耦合在一块要么就是质量不高，下次使用的时候就想重构，有人说项目急没办法（曾经我也这么说过），但是一个好的编程习惯真的可以做到事半功倍。既然是一种习惯，那么肯定是可以改的，首先我要先习惯利用思维导图来明确明白自己要什么，有什么功能，开始设计接口以及参数，最后才是分优先级然后根据优先级来执行下一步该做什么，这样可以很大高效的避免踩坑，避免因为设计不合理需要重构就麻烦了。闲话不多说下面进入正题。
@@ -65,22 +68,22 @@
 
 **播放器属性：**
 
-| 属性         | 类型             | 描述                                                         |
-| ------------ | ---------------- | ------------------------------------------------------------ |
-| dataSource   | String           | 视频URL或媒体文件的路径                                      |
+| 属性         | 类型             | 描述                                                                       |
+| ------------ | ---------------- | -------------------------------------------------------------------------- |
+| dataSource   | String           | 视频URL或媒体文件的路径                                                    |
 | children     | List<Widget>     | 自定义拓展的子元素，需要使用 Widget`Align`（字幕、弹幕、视频顶部控制栏等） |
-| oninit       | VideoCallback    | 初始化完成回调                                              |
-| onplay       | VideoCallback    | 视频开始播放的回调                                           |
-| onpause      | VideoCallback    | 视频暂停播放回调                                             |
-| ontimeupdate | VideoCallback    | 视频播放进度回调（通过返回的value进行字幕匹配）                  |
-| onend        | VideoCallback    | 视频播放结束回调                                             |
-| onvolume     | VideoCallback    | 播放声音大小变化回调                                          |
-| onbrightness | VideoCallback    | 屏幕亮度变化回调                                              |
-| onpop        | VideoCallback    | 顶部控制栏返回按钮点击回调                                     |
-| onnetwork    | VideoCallback    | 网络变化回调                                                 |
-| onfullscreen | VideoCallback    | 视频是否全屏回调                                              |
-| playOptions  | VideoPlayOptions | 视频播放自定义配置（详情见下方的**Useage**）                     |
-| videoStyle   | VideoStyle       | 视频播放器自定义样式（详情见下方的**Useage**）                   |
+| oninit       | VideoCallback    | 初始化完成回调                                                             |
+| onplay       | VideoCallback    | 视频开始播放的回调                                                         |
+| onpause      | VideoCallback    | 视频暂停播放回调                                                           |
+| ontimeupdate | VideoCallback    | 视频播放进度回调（通过返回的value进行字幕匹配）                            |
+| onend        | VideoCallback    | 视频播放结束回调                                                           |
+| onvolume     | VideoCallback    | 播放声音大小变化回调                                                       |
+| onbrightness | VideoCallback    | 屏幕亮度变化回调                                                           |
+| onpop        | VideoCallback    | 顶部控制栏返回按钮点击回调                                                 |
+| onnetwork    | VideoCallback    | 网络变化回调                                                               |
+| onfullscreen | VideoCallback    | 视频是否全屏回调                                                           |
+| playOptions  | VideoPlayOptions | 视频播放自定义配置（详情见下方的**Useage**）                               |
+| videoStyle   | VideoStyle       | 视频播放器自定义样式（详情见下方的**Useage**）                             |
 
 **播放器自定义配置 (VideoPlayOptions)：**
 
@@ -88,79 +91,79 @@
 | -------------- | -------- | ----------------------------------------- |
 | startPosition  | Duration | 开始播放节点，例如：Duration(seconds: 0)) |
 | loop           | bool     | 是否循环播放                              |
-| seekSeconds    | num      | 设置视频快进/快退单位秒数，默认为`15s`       |
+| seekSeconds    | num      | 设置视频快进/快退单位秒数，默认为`15s`    |
 | autoplay       | bool     | 是否自动播放                              |
-| aspectRatio    | num      | 视频播放比例，例如：16/9 或者 4/3           |
-| allowScrubbing | bool     | 是否运行进度条拖拽                         |
+| aspectRatio    | num      | 视频播放比例，例如：16/9 或者 4/3         |
+| allowScrubbing | bool     | 是否运行进度条拖拽                        |
 
 **播放器自定义样式 (VideoStyle)：**
 
-| 属性                 | 类型                 | 描述                                                         |
-| -------------------- | -------------------- | ------------------------------------------------------------ |
+| 属性                 | 类型                 | 描述                                                                    |
+| -------------------- | -------------------- | ----------------------------------------------------------------------- |
 | playIcon             | Widget               | 视频暂停播放时中央显示的图标，showPlayIcon为`false`时，该属性设置无效。 |
-| showPlayIcon         | bool                 | 暂停时是否显示播放按钮                                        |
-| videoTopBarStyle     | VideoTopBarStyle     | 视频顶部自定义样式（详情见下方的**Useage**）                    |
-| videoControlBarStyle | VideoControlBarStyle | 控制栏自定义样式（详情见下方的**Useage**）                      |
-| videoSubtitlesStyle  | VideoSubtitles       | 字幕自定义样式（详情见下方的**Useage**）                        |
+| showPlayIcon         | bool                 | 暂停时是否显示播放按钮                                                  |
+| videoTopBarStyle     | VideoTopBarStyle     | 视频顶部自定义样式（详情见下方的**Useage**）                            |
+| videoControlBarStyle | VideoControlBarStyle | 控制栏自定义样式（详情见下方的**Useage**）                              |
+| videoSubtitlesStyle  | VideoSubtitles       | 字幕自定义样式（详情见下方的**Useage**）                                |
 
 **自定义顶部控制栏 (VideoTopBarStyle)：**
 
-| 属性               | 类型         | 描述                                                         |
-| ------------------ | ------------ | ------------------------------------------------------------ |
-| show               | bool         | 是否显示控制栏                                                  |
-| barBackgroundColor | Color        | 控制栏背景颜色，默认为`Color.fromRGBO(0, 0, 0, 0.5)`             |
-| height             | double       | 自定义控制栏高度                                                |
-| padding            | EdgeInsets   | 自定义边距                                                     |
-| popIcon            | Widget       | 自定义返回按钮                                                  |
-| contents           | List<Widget> | 拓展控制栏中部元素（宽度自适应： `Row`中的 `Expanded`）             |
-| actions            | List<Widget> | 拓展控制栏右侧控制元素                                            |
+| 属性               | 类型         | 描述                                                                                              |
+| ------------------ | ------------ | ------------------------------------------------------------------------------------------------- |
+| show               | bool         | 是否显示控制栏                                                                                    |
+| barBackgroundColor | Color        | 控制栏背景颜色，默认为`Color.fromRGBO(0, 0, 0, 0.5)`                                              |
+| height             | double       | 自定义控制栏高度                                                                                  |
+| padding            | EdgeInsets   | 自定义边距                                                                                        |
+| popIcon            | Widget       | 自定义返回按钮                                                                                    |
+| contents           | List<Widget> | 拓展控制栏中部元素（宽度自适应： `Row`中的 `Expanded`）                                           |
+| actions            | List<Widget> | 拓展控制栏右侧控制元素                                                                            |
 | customBar          | Widget       | 重写控制栏（如果设置了`customBar`, 除`show`属性意外上方属性均不生效）,仅支持`Align`和`Positioned` |
 
 **自定义控制栏样式 (VideoControlBarStyle)：**
 
-| 属性               | 类型         | 描述                                                         |
-| ------------------ | ------------ | ------------------------------------------------------------ |
-| height             | double       | 控制栏高度，默认为`30`                                          |
-| padding            | EdgeInsets   | 控制栏内边距，默认为`EdgeInsets.symmetric(vertical: 8, horizontal: 10)`|
-| progressStyle      | VideoProgressStyle| 自定义控制拦进度条样式                                 |
-| barBackgroundColor | Color        | 控制栏背景颜色，默认为`Color.fromRGBO(0, 0, 0, 0.5)`        |
-| timePadding        | EdgeInsets   | 视频时间的内边距，默认为`EdgeInsets.symmetric(horizontal: 5)`|
-| timeFontSize       | double       | 视频时间的字体大小，默认为`8`                                |
-| timeFontColor      | Color        | 视频时间的颜色，默认为`Color.fromRGBO(255, 255, 255, 1)`    |
-| playIcon           | Widget       | 控制栏播放图标（下`图3`详细说明）                            |
-| pauseIcon          | Widget       | 控制栏暂停图标（下`图3`详细说明）                            |
-| rewindIcon         | Widget       | 控制栏快退图标（下`图3`详细说明）                            |
-| forwardIcon        | Widget       | 控制栏快进图标（下`图3`详细说明）                            |
-| fullscreenIcon     | Widget       | 控制栏全屏图标（下`图3`详细说明）                            |
-| fullscreenExitIcon | Widget       | 控制栏取消全屏图标（下`图3`详细说明）                         |
-| itemList           | List<String> | 控制栏自定义功能（下`图4`详细说明），默认为["rewind", "play", "forward", "position-time", "progress",  "duration-time", "fullscreen"]。如果我们需要调整控制栏显示的顺序，仅需要调整 list 中字符串的顺序，如果需要删减，直接从 list 中移除改字符串即可，例如移除快进和快退，则讲 list 设置为 ["play", "progress","position-time", "progress",  "duration-time", "fullscreen"] 即可。后面会陆续开放自定义元素，也就是你把你的元素加入到 list 中。 |
+| 属性               | 类型               | 描述                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| ------------------ | ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| height             | double             | 控制栏高度，默认为`30`                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| padding            | EdgeInsets         | 控制栏内边距，默认为`EdgeInsets.symmetric(vertical: 8, horizontal: 10)`                                                                                                                                                                                                                                                                                                                                                                         |
+| progressStyle      | VideoProgressStyle | 自定义控制拦进度条样式                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| barBackgroundColor | Color              | 控制栏背景颜色，默认为`Color.fromRGBO(0, 0, 0, 0.5)`                                                                                                                                                                                                                                                                                                                                                                                            |
+| timePadding        | EdgeInsets         | 视频时间的内边距，默认为`EdgeInsets.symmetric(horizontal: 5)`                                                                                                                                                                                                                                                                                                                                                                                   |
+| timeFontSize       | double             | 视频时间的字体大小，默认为`8`                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| timeFontColor      | Color              | 视频时间的颜色，默认为`Color.fromRGBO(255, 255, 255, 1)`                                                                                                                                                                                                                                                                                                                                                                                        |
+| playIcon           | Widget             | 控制栏播放图标（下`图3`详细说明）                                                                                                                                                                                                                                                                                                                                                                                                               |
+| pauseIcon          | Widget             | 控制栏暂停图标（下`图3`详细说明）                                                                                                                                                                                                                                                                                                                                                                                                               |
+| rewindIcon         | Widget             | 控制栏快退图标（下`图3`详细说明）                                                                                                                                                                                                                                                                                                                                                                                                               |
+| forwardIcon        | Widget             | 控制栏快进图标（下`图3`详细说明）                                                                                                                                                                                                                                                                                                                                                                                                               |
+| fullscreenIcon     | Widget             | 控制栏全屏图标（下`图3`详细说明）                                                                                                                                                                                                                                                                                                                                                                                                               |
+| fullscreenExitIcon | Widget             | 控制栏取消全屏图标（下`图3`详细说明）                                                                                                                                                                                                                                                                                                                                                                                                           |
+| itemList           | List<String>       | 控制栏自定义功能（下`图4`详细说明），默认为["rewind", "play", "forward", "position-time", "progress",  "duration-time", "fullscreen"]。如果我们需要调整控制栏显示的顺序，仅需要调整 list 中字符串的顺序，如果需要删减，直接从 list 中移除改字符串即可，例如移除快进和快退，则讲 list 设置为 ["play", "progress","position-time", "progress",  "duration-time", "fullscreen"] 即可。后面会陆续开放自定义元素，也就是你把你的元素加入到 list 中。 |
 
 **自定义进度条样式 (VideoProgressStyle) ：**
 
-| 属性                | 类型         | 描述                                                        |
-| ------------------ | ------------ | ---------------------------------------------------------- |
-| padding            | EdgeInsets   | 进度条边距（`itemList`中包含`progress`有效）                   |
-| height             | double       | 进度条高度（`itemList`中包含`progress`有效）                   |
-| dragHeight         | double       | 进度条拖拽按钮高度（`itemList`中包含`progress`有效）            |
-| progressRadius     | double       | 进度条圆角（`itemList`中包含`progress`有效）                   |
-| playedColor        | Color        | 已播放的进度条颜色（下`图2`详细说明）                            |
-| bufferedColor      | Color        | 已缓冲的进度条颜色（下`图2`详细说明）                            |
-| backgroundColor    | Color        | 进度条背景颜色（下`图2`详细说明）                               |
-| dragBarColor       | Color        | 进度条拖拽按钮演示（`itemList`中包含`progress`有效）            |
+| 属性            | 类型       | 描述                                                 |
+| --------------- | ---------- | ---------------------------------------------------- |
+| padding         | EdgeInsets | 进度条边距（`itemList`中包含`progress`有效）         |
+| height          | double     | 进度条高度（`itemList`中包含`progress`有效）         |
+| dragHeight      | double     | 进度条拖拽按钮高度（`itemList`中包含`progress`有效） |
+| progressRadius  | double     | 进度条圆角（`itemList`中包含`progress`有效）         |
+| playedColor     | Color      | 已播放的进度条颜色（下`图2`详细说明）                |
+| bufferedColor   | Color      | 已缓冲的进度条颜色（下`图2`详细说明）                |
+| backgroundColor | Color      | 进度条背景颜色（下`图2`详细说明）                    |
+| dragBarColor    | Color      | 进度条拖拽按钮演示（`itemList`中包含`progress`有效） |
 
 **自定义控制栏功能 (itemList) ：**
 
-| 属性               | 类型         | 描述                                                         |
-| ------------------ | ------------ | ---------------------------------------------------------- |
-| rewind             | String       | 快退功能，对应`VideoControlBarStyle`的`rewindIcon`图标         |
-| play               | String       | 播放/暂停功能，对应`VideoControlBarStyle`的`playIcon` `pauseIcon`图标   |
-| forward            | String       | 快进功能，对应`VideoControlBarStyle`的`forwardIcon`图标                |
-| progress           | String       | 线条形进度条（与‘basic-progress’二选一），由`VideoControlBarStyle`的`progressStyle`控制样式 |
-| basic-progress     | String       | 矩形进度条（与‘progress’二选一），由`VideoControlBarStyle`的`progressStyle`控制样式       |
-| time               | String       | 时间格式：当前时间/视频总时长（与`position-time`和`duration-time`二选一），由`VideoControlBarStyle`的`timePadding` `timeFontSize` `timeFontColor`控制样式 |
-| position-time      | String       | 当前播放时间，样式控制与`time`相同   |
-| duration-time      | String       | 视频总时长，样式控制与`time`相同     |
-| fullscreen         | String       | 全屏/小屏功能，对应`VideoControlBarStyle`的 `fullscreenIcon` `fullscreenExitIcon`图标         |
+| 属性           | 类型   | 描述                                                                                                                                                      |
+| -------------- | ------ | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| rewind         | String | 快退功能，对应`VideoControlBarStyle`的`rewindIcon`图标                                                                                                    |
+| play           | String | 播放/暂停功能，对应`VideoControlBarStyle`的`playIcon` `pauseIcon`图标                                                                                     |
+| forward        | String | 快进功能，对应`VideoControlBarStyle`的`forwardIcon`图标                                                                                                   |
+| progress       | String | 线条形进度条（与‘basic-progress’二选一），由`VideoControlBarStyle`的`progressStyle`控制样式                                                               |
+| basic-progress | String | 矩形进度条（与‘progress’二选一），由`VideoControlBarStyle`的`progressStyle`控制样式                                                                       |
+| time           | String | 时间格式：当前时间/视频总时长（与`position-time`和`duration-time`二选一），由`VideoControlBarStyle`的`timePadding` `timeFontSize` `timeFontColor`控制样式 |
+| position-time  | String | 当前播放时间，样式控制与`time`相同                                                                                                                        |
+| duration-time  | String | 视频总时长，样式控制与`time`相同                                                                                                                          |
+| fullscreen     | String | 全屏/小屏功能，对应`VideoControlBarStyle`的 `fullscreenIcon` `fullscreenExitIcon`图标                                                                     |
 
 ![图1](https://user-gold-cdn.xitu.io/2020/1/16/16fac611e431fe0e?w=876&h=527&f=png&s=30069)
 
@@ -753,23 +756,23 @@ class _MyAppState extends State<MyApp> {
   ```dart
   import 'package:flutter/material.dart';
   import 'package:awsome_video_player/awsome_video_player.dart';
-  
+
   void main() => runApp(MyApp());
-  
+
   class MyApp extends StatefulWidget {
     @override
     _MyAppState createState() => _MyAppState();
   }
-  
+
   class _MyAppState extends State<MyApp> {
-  
+
     String videoUrl = "https://www.runoob.com/try/demo_source/movie.mp4";
-  
+
     @override
     void initState() {
       super.initState();
     }
-  
+
     @override
     Widget build(BuildContext context) {
       return MaterialApp(
@@ -801,7 +804,7 @@ class _MyAppState extends State<MyApp> {
       );
     }
   }
-  
+
   ```
 
 - `AwsomeVideoPlayer`下面的`children`仅支持`Align`和`Positioned`，children的层级会高于下面，这个功能会持续更新，后面会陆续出一些针对自定义拓展的高阶文档。
@@ -823,7 +826,7 @@ class _MyAppState extends State<MyApp> {
 
 # License
 
-Copyright © 2020, Mark Chen.  All rights reserved. 
+Copyright © 2020, Mark Chen.  All rights reserved.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the “Software”), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 

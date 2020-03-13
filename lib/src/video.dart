@@ -66,6 +66,7 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer> {
   /// 是否全屏
   bool fullscreened = false;
   var subscription;
+  StreamSubscription<DeviceOrientation> subOrientaion;
 
   /// 获取屏幕大小
   Size get screenSize => MediaQuery.of(context).size;
@@ -151,6 +152,19 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer> {
       }
     });
 
+    subOrientaion = OrientationPlugin.onOrientationChange.listen((value) {
+      if (!mounted) return;
+      final full = value != DeviceOrientation.portraitUp;
+      if (fullscreened == full) return;
+      setState(() {
+        fullscreened = full;
+      });
+      if (widget.onfullscreen != null) {
+        widget.onfullscreen(fullscreened);
+      }
+      OrientationPlugin.forceOrientation(value);
+    });
+
     ///运行设备横竖屏
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
@@ -174,6 +188,7 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer> {
     ]);
     Screen.keepOn(false);
     subscription.cancel();
+    subOrientaion.cancel();
     super.dispose();
   }
 
