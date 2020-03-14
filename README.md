@@ -1,19 +1,21 @@
-### 写在前面
+一个简单易用的而且可高度自定义的播放器。
 
-我们往往写项目都是着急上手，总想着先写后面有时间了再（说）来（的）优（好）化（听），这样写出来的代码往往都是跟业务系统耦合在一块要么就是质量不高，下次使用的时候就想重构，有人说项目急没办法（曾经我也这么说过），但是一个好的编程习惯真的可以做到事半功倍。既然是一种习惯，那么肯定是可以改的，首先我要先习惯利用思维导图来明确明白自己要什么，有什么功能，开始设计接口以及参数，最后才是分优先级然后根据优先级来执行下一步该做什么，这样可以很大高效的避免踩坑，避免因为设计不合理需要重构就麻烦了。闲话不多说下面进入正题。
+![原型图](https://upload-images.jianshu.io/upload_images/4406914-032f148ae9fce8f6.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
-那么什么叫高度自由的播放器呢？我是这么认为的：首先尽可能的开放权限来更改配置，其次模块化设计，同时还需要跟业务代码解耦，光有这些还不算够，最后我们需要让视频播放器实现自定义拓展，也就是说现有播放器功能满足不了自己需求的时候，开发者可以自己动手，例如视频的`字幕`，`弹幕`，`视频顶部控制栏`等。
+# 工欲善其事，必先利其器
 
-![一张效果图](https://user-gold-cdn.xitu.io/2020/1/16/16fac7bf77ecd4ba?w=480&h=800&f=gif&s=4286938)
+闲话不多说我们直接上“干货”。
 
-### 快速通道
+Q：播放器就播放器，为什么要强调上高度自由呢？
+A：之所以强调高度自由是因为播放器上面的能见的元素你都可以去**更改**，同时提供很多的回调可以进行**自定义**处理。主要还是体现在了自定义这个方面。（你可以拿它去仿 blibli ，腾讯播放器等等）
 
-- [Git地址](https://github.com/chudongvip/awsome_video_player)
-- [DEMO源码](https://github.com/chudongvip/awsome_video_player/tree/master/example)
+Q：高度自由体现在哪些功能或者配置上面？
+A：最能体现自由的是播放器的**自定义拓展元素**功能，但是往往很多集成的开发者都忽略了这一点，因为这个确实很方便，但是很多播放器都没能做到这一点；其次，利用**自定义顶部控制拦**可以添加很多 `actions`操作，通过**自定义拓展元素**这个功能来辅助实现；最后，**自定义底部控制拦**可以**添加或减少**控制元素，更改进度条的样式等等。
 
-### 高自由度的播放器应该具备哪些功能？
+Q：播放器目前具备哪些能力？
+A：目前还在完善当中，但是功能基本都已经完善了，剩下的就是根据开发者的反馈去优化和完善了，下面是我罗列的功能列表：
 
-- 1.所有图标均可自定义
+- 1.自定义图标（所有）
 - 2.播放器自定义配置
   - 视频开始播放的起始位置
   - 是否自动播放
@@ -21,7 +23,7 @@
   - 视频比例
   - 进度条是否允许拖拽
   - 视频快进/快退的单位秒数
-- 3.自定义拓展子元素
+- 3.自定义拓展元素（无限）
   - 字幕（也可以使用内置字幕）
   - 弹幕
   - 其他元素（例如：广告覆盖；自定义视频顶部返回按钮；快进或快退等操作的渐入渐出的提示等等）
@@ -36,7 +38,7 @@
     - 自定义返回按钮
     - 拓展中部元素（标题）
     - 拓展右侧控制元素（更多操作）
-  - 控制栏自定义配置
+  - 底部控制栏自定义配置
     - 自定义顺序（通过数组来控制元素：线形进度条、矩形进度条等）
     - 自定义元素（通过数组来控制顺序）
     - 自定义背景颜色
@@ -57,18 +59,29 @@
 - 6.横竖屏切换
 - 7.常亮避免锁屏
 
-### 一图胜千言
+# 一张效果图
+![一张效果图](https://upload-images.jianshu.io/upload_images/4406914-52e18ca5a6522ad4.gif?imageMogr2/auto-orient/strip)
 
-![](https://user-gold-cdn.xitu.io/2020/1/14/16fa3bf3d5f005e5?w=1217&h=763&f=png&s=42866)
+# 前往快乐的源泉
+
+- [Git地址](https://github.com/chudongvip/awsome_video_player)
+- [DEMO源码](https://github.com/chudongvip/awsome_video_player/tree/master/example)
+
+# 播放器属性
+
+![逻辑思维图](https://upload-images.jianshu.io/upload_images/4406914-a68e4c8716b78fd9.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
 通过上图我们可以看一下播放器都有哪些属性呢？
 
-**播放器属性：**
-
 | 属性         | 类型             | 描述                                                         |
 | ------------ | ---------------- | ------------------------------------------------------------ |
-| dataSource   | String           | 视频URL或媒体文件的路径                                      |
-| children     | List<Widget>     | 自定义拓展的子元素，需要使用 Widget`Align`（字幕、弹幕、视频顶部控制栏等） |
+| dataSource   | String           | 视频URL或媒体文件的路径                        |
+| playOptions  | VideoPlayOptions | 视频播放自定义配置，包含是否自动播放，是否循环播放等（详情见下方的**Useage**）                     |
+| videoStyle   | VideoStyle       | 视频播放器自定义样式，自定义顶部控制拦样式、自定义底部控制拦样式等（详情见下方的**Useage**）                   |
+| children     | List<Widget>     | 自定义拓展的元素，需要使用 Widget `Align`（字幕、弹幕、广告、封面等其他自定义元素） |
+
+| 回调方法         | 类型             | 描述                                                         |
+| ------------ | ---------------- | ------------------------------------------------------------ |
 | oninit       | VideoCallback    | 初始化完成回调                                              |
 | onplay       | VideoCallback    | 视频开始播放的回调                                           |
 | onpause      | VideoCallback    | 视频暂停播放回调                                             |
@@ -78,11 +91,10 @@
 | onbrightness | VideoCallback    | 屏幕亮度变化回调                                              |
 | onpop        | VideoCallback    | 顶部控制栏返回按钮点击回调                                     |
 | onnetwork    | VideoCallback    | 网络变化回调                                                 |
-| onfullscreen | VideoCallback    | 视频是否全屏回调                                              |
-| playOptions  | VideoPlayOptions | 视频播放自定义配置（详情见下方的**Useage**）                     |
-| videoStyle   | VideoStyle       | 视频播放器自定义样式（详情见下方的**Useage**）                   |
+| onfullscreen | VideoCallback    | 视频是否全屏回调                                          |
+<br>
 
-**播放器自定义配置 (VideoPlayOptions)：**
+## 播放器自定义配置 (VideoPlayOptions)
 
 | 属性           | 类型     | 描述                                      |
 | -------------- | -------- | ----------------------------------------- |
@@ -92,8 +104,9 @@
 | autoplay       | bool     | 是否自动播放                              |
 | aspectRatio    | num      | 视频播放比例，例如：16/9 或者 4/3           |
 | allowScrubbing | bool     | 是否运行进度条拖拽                         |
+<br>
 
-**播放器自定义样式 (VideoStyle)：**
+## 播放器自定义样式 (VideoStyle)
 
 | 属性                 | 类型                 | 描述                                                         |
 | -------------------- | -------------------- | ------------------------------------------------------------ |
@@ -103,7 +116,7 @@
 | videoControlBarStyle | VideoControlBarStyle | 控制栏自定义样式（详情见下方的**Useage**）                      |
 | videoSubtitlesStyle  | VideoSubtitles       | 字幕自定义样式（详情见下方的**Useage**）                        |
 
-**自定义顶部控制栏 (VideoTopBarStyle)：**
+### 自定义顶部控制栏 (VideoTopBarStyle)：
 
 | 属性               | 类型         | 描述                                                         |
 | ------------------ | ------------ | ------------------------------------------------------------ |
@@ -116,7 +129,9 @@
 | actions            | List<Widget> | 拓展控制栏右侧控制元素                                            |
 | customBar          | Widget       | 重写控制栏（如果设置了`customBar`, 除`show`属性意外上方属性均不生效）,仅支持`Align`和`Positioned` |
 
-**自定义控制栏样式 (VideoControlBarStyle)：**
+![自定义顶部控制栏](https://upload-images.jianshu.io/upload_images/4406914-2f1586e7e4bc450e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
+### 自定义底部控制栏样式 (VideoControlBarStyle)：
 
 | 属性               | 类型         | 描述                                                         |
 | ------------------ | ------------ | ------------------------------------------------------------ |
@@ -134,8 +149,11 @@
 | fullscreenIcon     | Widget       | 控制栏全屏图标（下`图3`详细说明）                            |
 | fullscreenExitIcon | Widget       | 控制栏取消全屏图标（下`图3`详细说明）                         |
 | itemList           | List<String> | 控制栏自定义功能（下`图4`详细说明），默认为["rewind", "play", "forward", "position-time", "progress",  "duration-time", "fullscreen"]。如果我们需要调整控制栏显示的顺序，仅需要调整 list 中字符串的顺序，如果需要删减，直接从 list 中移除改字符串即可，例如移除快进和快退，则讲 list 设置为 ["play", "progress","position-time", "progress",  "duration-time", "fullscreen"] 即可。后面会陆续开放自定义元素，也就是你把你的元素加入到 list 中。 |
+![图3](https://upload-images.jianshu.io/upload_images/4406914-f317d63e033e47d8.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
-**自定义进度条样式 (VideoProgressStyle) ：**
+![图4](https://upload-images.jianshu.io/upload_images/4406914-56cc09ec1457254b.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
+### 自定义进度条样式 (VideoProgressStyle) ：
 
 | 属性                | 类型         | 描述                                                        |
 | ------------------ | ------------ | ---------------------------------------------------------- |
@@ -143,12 +161,14 @@
 | height             | double       | 进度条高度（`itemList`中包含`progress`有效）                   |
 | dragHeight         | double       | 进度条拖拽按钮高度（`itemList`中包含`progress`有效）            |
 | progressRadius     | double       | 进度条圆角（`itemList`中包含`progress`有效）                   |
-| playedColor        | Color        | 已播放的进度条颜色（下`图2`详细说明）                            |
-| bufferedColor      | Color        | 已缓冲的进度条颜色（下`图2`详细说明）                            |
-| backgroundColor    | Color        | 进度条背景颜色（下`图2`详细说明）                               |
+| playedColor        | Color        | 已播放的进度条颜色（见下图）                            |
+| bufferedColor      | Color        | 已缓冲的进度条颜色（见下图）                            |
+| backgroundColor    | Color        | 进度条背景颜色（见下图）                               |
 | dragBarColor       | Color        | 进度条拖拽按钮演示（`itemList`中包含`progress`有效）            |
 
-**自定义控制栏功能 (itemList) ：**
+![更改颜色](https://upload-images.jianshu.io/upload_images/4406914-55580615c6e2125d.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
+### 自定义控制栏功能 (itemList) ：
 
 | 属性               | 类型         | 描述                                                         |
 | ------------------ | ------------ | ---------------------------------------------------------- |
@@ -161,22 +181,6 @@
 | position-time      | String       | 当前播放时间，样式控制与`time`相同   |
 | duration-time      | String       | 视频总时长，样式控制与`time`相同     |
 | fullscreen         | String       | 全屏/小屏功能，对应`VideoControlBarStyle`的 `fullscreenIcon` `fullscreenExitIcon`图标         |
-
-![图1](https://user-gold-cdn.xitu.io/2020/1/16/16fac611e431fe0e?w=876&h=527&f=png&s=30069)
-
-<center><i>图1</i></center>
-
-![控制栏颜色自定义](https://user-gold-cdn.xitu.io/2020/1/14/16fa3bfbc4f63f60?w=960&h=402&f=png&s=24998)
-
-<center><i>图2</i></center>
-
-![图标自定义](https://user-gold-cdn.xitu.io/2020/1/14/16fa3c013a3a8520?w=1037&h=481&f=png&s=20143)
-
-<center><i>图3</i></center>
-
-![控制栏进度条自定义元素](https://user-gold-cdn.xitu.io/2020/1/14/16fa3c04dd751021?w=963&h=544&f=png&s=30857)
-
-<center><i>图4</i></center>
 
 # 如何使用?
 
@@ -203,7 +207,7 @@
 
 ## Useage
 
-这是一个完整的
+这是一个完整的DEMO
 
 main.dart
 
@@ -409,9 +413,9 @@ class _MyAppState extends State<MyApp> {
 
 # DEMO示例
 
-#### 1. 自定义控制栏图标
+## 1. 自定义控制栏图标
 
-首先我来看一下控制栏的图标自定义（见上图2）:
+首先我来看一下控制栏的图标自定义（见上图1）:
 
 >DEMO: main.dart
 
@@ -496,7 +500,7 @@ class _MyAppState extends State<MyApp> {
 }
 ```
 
-#### 2. 自定义控制栏元素和顺序
+## 2. 自定义控制栏元素和顺序
 
 我们可以根据`videoStyle`中`videoControlBarStyle`来自定义控制栏的样式：调整顺序（见上方图3）只需要调整 `itemList`中字符串的顺序即可；控制显示的元素，将不需要暂时的元素从  `itemList` 中删除即可。
 
@@ -557,7 +561,7 @@ class _MyAppState extends State<MyApp> {
 }
 ```
 
-#### 3. 自定义进度条以及控制栏的背景颜色
+## 3. 自定义进度条以及控制栏的背景颜色
 
 同样我们还是通过`videoStyle`中`videoControlBarStyle`来自定义进度条的颜色（见上方图3）。
 
@@ -628,12 +632,12 @@ class _MyAppState extends State<MyApp> {
 
 ```
 
-#### 4. 自定义顶部控制栏
+## 4. 自定义顶部控制栏
 
 通过`videoStyle`中`videoTopBarStyle`来自定义顶部控制栏。
 
 *DEMO*
-![](https://user-gold-cdn.xitu.io/2020/1/16/16fac62d3bd2df87?w=387&h=218&f=png&s=105932)
+![image](https://upload-images.jianshu.io/upload_images/4406914-bdfbb943f7b2f88d?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
 >DEMO: main.dart
 
@@ -744,9 +748,11 @@ class _MyAppState extends State<MyApp> {
 
 ```
 
-### 注意事项（Q&A）
+# 注意事项（Q&A）
 
 - 视频如果需要横竖屏不能使用safeArea
+
+- 顶部控制拦或者底部控制拦文字或者图标被裁剪，调整字体或图标大小，也可以通过调整控制拦高度
 
 - 视频的 `dataSoure`不能为空，为空时使用加载视图，否则播放器会报错
 
@@ -810,16 +816,18 @@ class _MyAppState extends State<MyApp> {
 
 开发过程中遇到问题，请通过以下方式联系我，我会第一时间回复你：
 
-- 请通过下面的微信或者微信群进行提问
-- 或者[点击这里](https://github.com/chudongvip/awsome_video_player/issues/new?title=\[Question%20report%20\]%20XXX%20&body=%3C!--%20generated%20by%20README%20--%3E)提问题
-- [点击这里](https://github.com/chudongvip/awsome_video_player/issues/new?title=[Bug%20report]%20XXX%20&body)上报BUG
-![](https://user-gold-cdn.xitu.io/2020/1/14/16fa3c3f3a1a0851?w=285&h=283&f=png&s=41025)
+- 联系我
+  QQ：604748948
+  QQ群：160612343
+  微信：cheampie
+  ![微信谈论组](https://upload-images.jianshu.io/upload_images/4406914-23fb39bde3e8d69d.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
-<center>我的微信</center>
+- Report
+  - [BUG](https://github.com/chudongvip/awsome_video_player/issues/new?title=[Bug%20Report]&body=%20%3C!--%20generated%20by%20third%20party%20platform%20%20--%3E)
 
-![](https://user-gold-cdn.xitu.io/2020/1/14/16fa3c41ee67d888?w=295&h=294&f=png&s=29131)
+  - [需求](https://github.com/chudongvip/awsome_video_player/issues/new?title=[Demand%20Report]&body=%20%3C!--%20generated%20by%20third%20party%20platform%20%20--%3E)
 
-<center>扫码进入技术进阶交流群</center>
+  - [建议](https://github.com/chudongvip/awsome_video_player/issues/new?title=[Advice%20Report]&body=%20%3C!--%20generated%20by%20third%20party%20platform%20%20--%3E)
 
 # License
 
