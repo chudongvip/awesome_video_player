@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:awsome_video_player/src/widget/video_loading_view.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:orientation/orientation.dart';
@@ -9,7 +10,12 @@ import 'package:connectivity/connectivity.dart';
 import './video_style.dart';
 import './video_play_options.dart';
 
-import './video_progress_bar.dart';
+///widgets
+import './widget/video_loading_view.dart';
+import './widget/default_progress_bar.dart';
+import './widget/linear_progress_bar.dart';
+import './widget/video_top_bar.dart';
+import './widget/video_bottom_bar.dart';
 
 typedef VideoCallback<T> = void Function(T t);
 
@@ -59,24 +65,114 @@ class AwsomeVideoPlayer extends StatefulWidget {
   _AwsomeVideoPlayerState createState() => _AwsomeVideoPlayerState();
 }
 
-class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer> {
+class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer>
+    with SingleTickerProviderStateMixin {
   /// 控制器 - 快进 seekTo 暂停 pause 播放 play 摧毁 dispose
   VideoPlayerController controller;
 
-  /// 是否全屏
-  bool fullscreened = false;
-  var subscription;
+  AnimationController controlBarAnimationController;
+  Animation<double> controlTopBarAnimation;
+  Animation<double> controlBottomBarAnimation;
 
-  /// 获取屏幕大小
-  Size get screenSize => MediaQuery.of(context).size;
+  /// 是否全屏
+  // bool fullscreened = false;
+  // bool fullscreened = false;
+
+  bool _fullscreened = false;
+  get fullscreened {
+    return _fullscreened;
+  }
+
+  set fullscreened(bool isFull) {
+    _fullscreened = isFull;
+
+    if (widget.onfullscreen != null) {
+      widget.onfullscreen(_fullscreened);
+    }
+    OrientationPlugin.forceOrientation(_fullscreened
+        ? DeviceOrientation.landscapeRight
+        : DeviceOrientation.portraitUp);
+  }
 
   bool initialized = false;
+  double brightness;
   bool showMeau = false;
   Timer showTime;
   String position = "--:--";
   String duration = "--:--";
 
-  double brightness;
+  /// 获取屏幕大小
+  Size get screenSize => MediaQuery.of(context).size;
+
+  StreamSubscription<ConnectivityResult> subscription;
+  StreamSubscription<DeviceOrientation> subOrientaion;
+
+  @override
+  void initState() {
+    super.initState();
+
+    /// 控制拦动画
+    controlBarAnimationController = AnimationController(
+        duration: const Duration(milliseconds: 300), vsync: this);
+    controlTopBarAnimation =
+        Tween(begin: -widget.videoStyle.videoTopBarStyle.height, end: 0.0)
+            .animate(controlBarAnimationController);
+    controlBottomBarAnimation =
+        Tween(begin: -widget.videoStyle.videoTopBarStyle.height, end: 0.0)
+            .animate(controlBarAnimationController);
+    // controlBarAnimationController.forward();
+
+    /// 网络监听
+    subscription = Connectivity()
+        .onConnectivityChanged
+        .listen((ConnectivityResult result) {
+      // Got a new connectivity status!
+      if (widget.onnetwork != null) {
+        widget.onnetwork(result.toString().split('.')[1]);
+      }
+    });
+
+    /// 横竖屏监听
+    // subOrientaion = OrientationPlugin.onOrientationChange.listen((value) {
+    //   if (!mounted) return;
+    //   print(value);
+    // final full = value != DeviceOrientation.portraitUp;
+    // if (fullscreened == full) return;
+    // setState(() {
+    //   fullscreened = full;
+    // });
+    // if (widget.onfullscreen != null) {
+    //   widget.onfullscreen(fullscreened);
+    // }
+    // OrientationPlugin.forceOrientation(value);
+    // });
+
+    ///运行设备横竖屏
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight,
+    ]);
+    // 常亮
+    Screen.keepOn(true);
+
+    initPlayer();
+  }
+
+  @override
+  void dispose() {
+    clearHideControlbarTimer();
+    controller.dispose();
+
+    ///竖屏
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+    ]);
+    Screen.keepOn(false);
+    subscription.cancel();
+    subOrientaion.cancel();
+    super.dispose();
+  }
 
   void initPlayer() {
     if (controller == null) {
@@ -137,46 +233,6 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer> {
     }
   }
 
-  @override
-  void initState() {
-    super.initState();
-
-    /// 网络监听
-    subscription = Connectivity()
-        .onConnectivityChanged
-        .listen((ConnectivityResult result) {
-      // Got a new connectivity status!
-      if (widget.onnetwork != null) {
-        widget.onnetwork(result.toString().split('.')[1]);
-      }
-    });
-
-    ///运行设备横竖屏
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-      DeviceOrientation.landscapeLeft,
-      DeviceOrientation.landscapeRight,
-    ]);
-    // 常亮
-    Screen.keepOn(true);
-
-    initPlayer();
-  }
-
-  @override
-  void dispose() {
-    clearHideControlbarTimer();
-    controller.dispose();
-
-    ///竖屏
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-    ]);
-    Screen.keepOn(false);
-    subscription.cancel();
-    super.dispose();
-  }
-
   //点击播放或暂停
   void togglePlay() {
     createHideControlbarTimer();
@@ -205,7 +261,13 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer> {
     } else {
       showMeau = false;
     }
-    setState(() {});
+    setState(() {
+      if (showMeau) {
+        controlBarAnimationController.forward();
+      } else {
+        controlBarAnimationController.reverse();
+      }
+    });
   }
 
   void createHideControlbarTimer() {
@@ -217,6 +279,7 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer> {
         if (showMeau) {
           setState(() {
             showMeau = false;
+            controlBarAnimationController.reverse();
           });
         }
       }
@@ -250,44 +313,19 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer> {
     });
   }
 
-  ///默认视频进度条
-  Widget defaultVideoProgress() {
-    return VideoProgressIndicator(
-      controller,
-      allowScrubbing: widget.playOptions.allowScrubbing,
-      colors: VideoProgressColors(
-        playedColor: widget.videoStyle.videoControlBarStyle.playedColor ??
-            widget.videoStyle.videoControlBarStyle.progressStyle.playedColor,
-        bufferedColor: widget.videoStyle.videoControlBarStyle.bufferedColor ??
-            widget.videoStyle.videoControlBarStyle.progressStyle.bufferedColor,
-        backgroundColor:
-            widget.videoStyle.videoControlBarStyle.backgroundColor ??
-                widget.videoStyle.videoControlBarStyle.progressStyle
-                    .backgroundColor,
-      ),
-      padding: widget.videoStyle.videoControlBarStyle.progressStyle.padding,
-    );
-  }
-
-  ///线条视频进度条
-  Widget lineVideoProgress() {
-    return AwsomeVideoProgressIndicator(controller,
-        allowScrubbing: widget.playOptions.allowScrubbing,
-        padding: widget.videoStyle.videoControlBarStyle.progressStyle.padding,
-        progressStyle: widget.videoStyle.videoControlBarStyle.progressStyle);
-  }
-
   /// 动态生成进度条组件
-  List<Widget> generateControlBarWidget() {
-    Map<String, Widget> controlBarItems = {
-      "rewind": GestureDetector(
-        onTap: () {
-          fastRewind();
-        },
-        child: widget.videoStyle.videoControlBarStyle.rewindIcon,
-      ),
+  List<Widget> generateVideoProgressChildren() {
+    Map<String, Widget> videoProgressWidgets = {
+      "rewind": Padding(
+          padding: EdgeInsets.symmetric(horizontal: 2),
+          child: GestureDetector(
+            onTap: () {
+              fastRewind();
+            },
+            child: widget.videoStyle.videoControlBarStyle.rewindIcon,
+          )),
       "play": Padding(
-        padding: EdgeInsets.symmetric(horizontal: 8),
+        padding: EdgeInsets.symmetric(horizontal: 2),
         child: GestureDetector(
           onTap: () {
             togglePlay();
@@ -297,22 +335,36 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer> {
               : widget.videoStyle.videoControlBarStyle.playIcon,
         ),
       ),
-      "forward": GestureDetector(
-        onTap: () {
-          fastForward();
-        },
-        child: widget.videoStyle.videoControlBarStyle.forwardIcon,
-      ),
+      "forward": Padding(
+          padding: EdgeInsets.symmetric(horizontal: 2),
+          child: GestureDetector(
+            onTap: () {
+              fastForward();
+            },
+            child: widget.videoStyle.videoControlBarStyle.forwardIcon,
+          )),
+
+      ///线条视频进度条
       "progress": Expanded(
         child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 8),
-          child: lineVideoProgress(),
+          padding: EdgeInsets.symmetric(horizontal: 4),
+          child: VideoLinearProgressBar(controller,
+              allowScrubbing: widget.playOptions.allowScrubbing,
+              padding:
+                  widget.videoStyle.videoControlBarStyle.progressStyle.padding,
+              progressStyle:
+                  widget.videoStyle.videoControlBarStyle.progressStyle),
         ),
       ),
+
+      ///默认视频进度条
       "basic-progress": Expanded(
         child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 8),
-          child: defaultVideoProgress(),
+          padding: EdgeInsets.symmetric(horizontal: 4),
+          child: VideoDefaultProgressBar(controller,
+              allowScrubbing: widget.playOptions.allowScrubbing,
+              progressStyle:
+                  widget.videoStyle.videoControlBarStyle.progressStyle),
         ),
       ),
       "time": Padding(
@@ -345,86 +397,149 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer> {
           ),
         ),
       ),
-      "fullscreen": GestureDetector(
-        onTap: () {
-          setState(() {
-            fullscreened = !fullscreened;
-            if (widget.onfullscreen != null) {
-              widget.onfullscreen(fullscreened);
-            }
-            OrientationPlugin.forceOrientation(fullscreened
-                ? DeviceOrientation.landscapeRight
-                : DeviceOrientation.portraitUp);
-          });
-        },
-        child: fullscreened
-            ? widget.videoStyle.videoControlBarStyle.fullscreenExitIcon
-            : widget.videoStyle.videoControlBarStyle.fullscreenIcon,
-      ),
+      "fullscreen": Padding(
+          padding: EdgeInsets.symmetric(horizontal: 2),
+          child: GestureDetector(
+            onTap: () {
+              setState(() {
+                fullscreened = !fullscreened;
+                // if (widget.onfullscreen != null) {
+                //   widget.onfullscreen(fullscreened);
+                // }
+                // OrientationPlugin.forceOrientation(fullscreened
+                //     ? DeviceOrientation.landscapeRight
+                //     : DeviceOrientation.portraitUp);
+              });
+            },
+            child: fullscreened
+                ? widget.videoStyle.videoControlBarStyle.fullscreenExitIcon
+                : widget.videoStyle.videoControlBarStyle.fullscreenIcon,
+          )),
     };
 
-    List<Widget> finalBuildItem = [];
+    List<Widget> videoProgressChildrens = [];
     var userSpecifyItem = widget.videoStyle.videoControlBarStyle.itemList;
 
     for (var i = 0; i < userSpecifyItem.length; i++) {
-      finalBuildItem.add(controlBarItems[userSpecifyItem[i]]);
+      videoProgressChildrens.add(videoProgressWidgets[userSpecifyItem[i]]);
     }
 
-    return finalBuildItem;
+    return videoProgressChildrens;
+  }
+
+  /// 内置组件
+  List<Widget> videoBuiltInChildrens() {
+    return [
+      /// 顶部控制拦
+      widget.videoStyle.videoTopBarStyle.show
+          ? VideoTopBar(
+              animation: controlTopBarAnimation,
+              videoTopBarStyle: widget.videoStyle.videoTopBarStyle,
+              videoControlBarStyle: widget.videoStyle.videoControlBarStyle,
+              onpop: () {
+                if (fullscreened) {
+                  setState(() {
+                    fullscreened = !fullscreened;
+                    // if (widget.onfullscreen != null) {
+                    //   widget.onfullscreen(fullscreened);
+                    // }
+                    // OrientationPlugin.forceOrientation(fullscreened
+                    //     ? DeviceOrientation.landscapeRight
+                    //     : DeviceOrientation.portraitUp);
+                  });
+                } else {
+                  if (widget.onpop != null) {
+                    widget.onpop(null);
+                  }
+                }
+              })
+          : Align(),
+
+      /// 是否显示播放按钮
+      !controller.value.isPlaying && widget.videoStyle.showPlayIcon
+          ? Align(
+              alignment: Alignment.center,
+              child: GestureDetector(
+                onTap: () {
+                  if (!controller.value.isPlaying) {
+                    togglePlay();
+                  }
+                },
+                child: widget.videoStyle.playIcon,
+              ),
+            )
+          : Text(""),
+
+      /// 主字幕
+      widget.videoStyle.videoSubtitlesStyle.mianTitle != null
+          ? widget.videoStyle.videoSubtitlesStyle.mianTitle
+          : Align(
+              alignment: Alignment.bottomCenter,
+              child: Container(
+                padding: EdgeInsets.fromLTRB(10, 0, 10, 30),
+                child: Text("",
+                    maxLines: 2,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        color: widget
+                            .videoStyle.videoSubtitlesStyle.mainTitleColor,
+                        fontSize: widget
+                            .videoStyle.videoSubtitlesStyle.mainTitleFontSize)),
+              ),
+            ),
+
+      /// 辅字幕
+      widget.videoStyle.videoSubtitlesStyle.subTitle != null
+          ? widget.videoStyle.videoSubtitlesStyle.subTitle
+          : Align(
+              alignment: Alignment.bottomCenter,
+              child: Container(
+                padding: EdgeInsets.all(10),
+                child: Text("",
+                    maxLines: 2,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        color:
+                            widget.videoStyle.videoSubtitlesStyle.subTitleColor,
+                        fontSize: widget
+                            .videoStyle.videoSubtitlesStyle.subTitleFontSize)),
+              ),
+            ),
+
+      /// 底部控制拦
+      VideoBottomBar(
+        animation: controlBottomBarAnimation,
+        videoControlBarStyle: widget.videoStyle.videoControlBarStyle,
+        children: generateVideoProgressChildren(),
+      ),
+    ];
   }
 
   @override
   Widget build(BuildContext context) {
     // setState(() {
-    //   fullscreened = screenSize.width > screenSize.height;
+    // fullscreened = screenSize.width > screenSize.height;
+    // if (widget.onfullscreen != null) {
+    // widget.onfullscreen(fullscreened);
+    // }
+    // OrientationPlugin.forceOrientation(fullscreened
+    //     ? DeviceOrientation.landscapeRight
+    //     : DeviceOrientation.portraitUp);
     // });
 
-    if (!initialized) return _defaultFrame();
-
-    // 初始化完成
-    final children = _videoFrame();
-    children.addAll(_controlFrame());
-    children.addAll(widget.children ?? []);
-    return WillPopScope(
-      onWillPop: () {
-        if (fullscreened) {
-          setState(() {
-            fullscreened = !fullscreened;
-            if (widget.onfullscreen != null) {
-              widget.onfullscreen(fullscreened);
-            }
-            OrientationPlugin.forceOrientation(fullscreened
-                ? DeviceOrientation.landscapeRight
-                : DeviceOrientation.portraitUp);
-          });
-          return new Future.value(false);
-        } else {
-          return new Future.value(true);
-        }
-      },
-      child: AspectRatio(
+    /// Loading...
+    if (!initialized)
+      return VideoLoadingView(
         aspectRatio: fullscreened
             ? _calculateAspectRatio(context)
             : widget.playOptions.aspectRatio,
-        child: Stack(children: children),
-      ),
-    );
-  }
+      );
 
-  Widget _defaultFrame() {
-    return AspectRatio(
-        aspectRatio: fullscreened
-            ? _calculateAspectRatio(context)
-            : widget.playOptions.aspectRatio,
-        child: Center(
-          child: CircularProgressIndicator(strokeWidth: 2.0),
-        ));
-  }
-
-  /// 播放器
-  List<Widget> _videoFrame() {
-    return [
+    /// Video children
+    final videoChildrens = <Widget>[
+      /// 视频区域
       GestureDetector(
+          //点击
           onTap: () {
             //显示或隐藏菜单栏和进度条
             toggleControls();
@@ -507,10 +622,9 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer> {
               Screen.setBrightness(brightness);
             }
           },
-          onVerticalDragEnd: (DragEndDetails details) {
-            // print("end === ");
-            // print(details);
-          },
+          onVerticalDragEnd: (DragEndDetails details) {},
+
+          ///视频播放器
           child: ClipRect(
               child: Container(
             width: double.infinity,
@@ -521,137 +635,46 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer> {
               aspectRatio: controller.value.aspectRatio,
               child: VideoPlayer(controller),
             )),
-          )))
+          ))),
+
+      ///控制拦以及可拓展元素
+      ///ToDoList...
     ];
-  }
 
-  List<Widget> _controlFrame() {
-    return [
-      //
-      widget.videoStyle.videoTopBarStyle.show && showMeau
-          ? widget.videoStyle.videoTopBarStyle.customBar == null
-              ? Align(
-                  alignment: Alignment.topLeft,
-                  child: Container(
-                    height: widget.videoStyle.videoTopBarStyle.height,
-                    padding: widget.videoStyle.videoTopBarStyle.padding,
-                    color: widget
-                        .videoStyle.videoControlBarStyle.barBackgroundColor,
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: <Widget>[
-                        /// 左侧控制栏
-                        GestureDetector(
-                          onTap: () {
-                            if (fullscreened) {
-                              setState(() {
-                                fullscreened = !fullscreened;
-                                if (widget.onfullscreen != null) {
-                                  widget.onfullscreen(fullscreened);
-                                }
-                                OrientationPlugin.forceOrientation(fullscreened
-                                    ? DeviceOrientation.landscapeRight
-                                    : DeviceOrientation.portraitUp);
-                              });
-                            } else {
-                              if (widget.onpop != null) {
-                                widget.onpop(null);
-                              }
-                            }
-                          },
-                          child: widget.videoStyle.videoTopBarStyle.popIcon,
-                        ),
+    /// 内置元素
+    videoChildrens.addAll(videoBuiltInChildrens());
 
-                        /// 中部控制栏
-                        Expanded(
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children:
-                                widget.videoStyle.videoTopBarStyle.contents,
-                          ),
-                        ),
+    /// 自定义拓展元素
+    videoChildrens.addAll(widget.children ?? []);
 
-                        /// 右侧部控制栏
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: widget.videoStyle.videoTopBarStyle.actions,
-                        )
-                      ],
-                    ),
-                  ),
-                )
-              : widget.videoStyle.videoTopBarStyle.customBar
-          : Align(),
+    /// 构建video
+    return WillPopScope(
+      ///监听返回按键
+      onWillPop: () {
+        if (fullscreened) {
+          setState(() {
+            fullscreened = !fullscreened;
+            // if (widget.onfullscreen != null) {
+            //   widget.onfullscreen(fullscreened);
+            // }
+            // OrientationPlugin.forceOrientation(fullscreened
+            //     ? DeviceOrientation.landscapeRight
+            //     : DeviceOrientation.portraitUp);
+          });
+          return new Future.value(false);
+        } else {
+          return new Future.value(true);
+        }
+      },
+      child: AspectRatio(
+        aspectRatio: fullscreened
+            ? _calculateAspectRatio(context)
+            : widget.playOptions.aspectRatio,
 
-      /// 是否显示播放按钮
-      !controller.value.isPlaying && widget.videoStyle.showPlayIcon
-          ? Align(
-              alignment: Alignment.center,
-              child: GestureDetector(
-                onTap: () {
-                  if (!controller.value.isPlaying) {
-                    togglePlay();
-                  }
-                },
-                child: widget.videoStyle.playIcon,
-              ),
-            )
-          : Text(""),
-
-      /// 主字幕
-      widget.videoStyle.videoSubtitlesStyle.mianTitle != null
-          ? widget.videoStyle.videoSubtitlesStyle.mianTitle
-          : Align(
-              alignment: Alignment.bottomCenter,
-              child: Container(
-                padding: EdgeInsets.fromLTRB(10, 0, 10, 30),
-                child: Text("",
-                    maxLines: 2,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                        color: widget
-                            .videoStyle.videoSubtitlesStyle.mainTitleColor,
-                        fontSize: widget
-                            .videoStyle.videoSubtitlesStyle.mainTitleFontSize)),
-              ),
-            ),
-
-      /// 辅字幕
-      widget.videoStyle.videoSubtitlesStyle.subTitle != null
-          ? widget.videoStyle.videoSubtitlesStyle.subTitle
-          : Align(
-              alignment: Alignment.bottomCenter,
-              child: Container(
-                padding: EdgeInsets.all(10),
-                child: Text("",
-                    maxLines: 2,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                        color:
-                            widget.videoStyle.videoSubtitlesStyle.subTitleColor,
-                        fontSize: widget
-                            .videoStyle.videoSubtitlesStyle.subTitleFontSize)),
-              ),
-            ),
-
-      /// 进度条
-      Align(
-        alignment: Alignment.bottomCenter,
-        child: showMeau
-            ? Container(
-                padding: widget.videoStyle.videoControlBarStyle.padding,
-                height: widget.videoStyle.videoControlBarStyle.height,
-                color:
-                    widget.videoStyle.videoControlBarStyle.barBackgroundColor,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: generateControlBarWidget(),
-                ),
-              )
-            : Text(""),
-      )
-    ];
+        /// build 所有video组件
+        child: Stack(children: videoChildrens),
+      ),
+    );
   }
 
   /// 创建video controller

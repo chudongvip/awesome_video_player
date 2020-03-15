@@ -9,7 +9,7 @@ class VideoTopBarStyle {
     this.barBackgroundColor = const Color.fromRGBO(0, 0, 0, 0.5),
     this.popIcon = const Icon(
       Icons.arrow_back,
-      size: 16,
+      size: 18,
       color: Colors.white,
     ),
     this.contents = const [],

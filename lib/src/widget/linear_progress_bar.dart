@@ -1,6 +1,68 @@
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
-import './video_progress_style.dart';
+
+import '../video_progress_style.dart';
+
+/// 自定义线性进度条
+class VideoLinearProgressBar extends StatefulWidget {
+  VideoLinearProgressBar(
+    this.controller, {
+    VideoProgressStyle progressStyle,
+    this.allowScrubbing,
+    this.padding = const EdgeInsets.only(top: 5.0),
+  }) : progressStyle = progressStyle ?? VideoProgressStyle();
+
+  final VideoPlayerController controller;
+
+  final VideoProgressStyle progressStyle;
+
+  final bool allowScrubbing;
+
+  final EdgeInsets padding;
+
+  @override
+  _VideoLinearProgressBarState createState() => _VideoLinearProgressBarState();
+}
+
+class _VideoLinearProgressBarState extends State<VideoLinearProgressBar> {
+  _VideoLinearProgressBarState() {
+    listener = () {
+      if (!mounted) {
+        return;
+      }
+      setState(() {});
+    };
+  }
+
+  VoidCallback listener;
+
+  VideoPlayerController get controller => widget.controller;
+
+  VideoProgressStyle get style => widget.progressStyle;
+
+  @override
+  void initState() {
+    super.initState();
+    controller.addListener(listener);
+  }
+
+  @override
+  void deactivate() {
+    controller.removeListener(listener);
+    super.deactivate();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return _VideoScrubber(
+      controller: controller,
+      child: CustomPaint(
+        painter: _ProgressBarPainter(controller.value, style),
+        child: Container(),
+      ),
+    );
+  }
+}
 
 /// 处理进度条手势
 class _VideoScrubber extends StatefulWidget {
@@ -134,69 +196,6 @@ class _ProgressBarPainter extends CustomPainter {
       Offset(playedPart, baseOffset + style.height / 2),
       style.dragHeight,
       Paint()..color = style.dragBarColor,
-    );
-  }
-}
-
-/// 自定义视频进度条
-class AwsomeVideoProgressIndicator extends StatefulWidget {
-  AwsomeVideoProgressIndicator(
-    this.controller, {
-    VideoProgressStyle progressStyle,
-    this.allowScrubbing,
-    this.padding = const EdgeInsets.only(top: 5.0),
-  }) : progressStyle = progressStyle ?? VideoProgressStyle();
-
-  final VideoPlayerController controller;
-
-  final VideoProgressStyle progressStyle;
-
-  final bool allowScrubbing;
-
-  final EdgeInsets padding;
-
-  @override
-  _AwsomeVideoProgressIndicatorState createState() =>
-      _AwsomeVideoProgressIndicatorState();
-}
-
-class _AwsomeVideoProgressIndicatorState
-    extends State<AwsomeVideoProgressIndicator> {
-  _AwsomeVideoProgressIndicatorState() {
-    listener = () {
-      if (!mounted) {
-        return;
-      }
-      setState(() {});
-    };
-  }
-
-  VoidCallback listener;
-
-  VideoPlayerController get controller => widget.controller;
-
-  VideoProgressStyle get style => widget.progressStyle;
-
-  @override
-  void initState() {
-    super.initState();
-    controller.addListener(listener);
-  }
-
-  @override
-  void deactivate() {
-    controller.removeListener(listener);
-    super.deactivate();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return _VideoScrubber(
-      controller: controller,
-      child: CustomPaint(
-        painter: _ProgressBarPainter(controller.value, style),
-        child: Container(),
-      ),
     );
   }
 }

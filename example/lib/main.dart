@@ -61,7 +61,7 @@ class _MyAppState extends State<MyApp> {
   bool _isPlaying = false;
 
   bool showAppBar = true;
-  bool showAdvertCover = false;//是否显示广告
+  bool showAdvertCover = false; //是否显示广告
 
   bool get isPlaying => _isPlaying;
   set isPlaying(bool playing) {
@@ -90,9 +90,11 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        appBar: showAppBar ? AppBar(
-          title: const Text('Awsome video player'),
-        ) : null,
+        appBar: showAppBar
+            ? AppBar(
+                title: const Text('Awsome video player'),
+              )
+            : null,
         body: Center(
           child: videoUrl != ""
               ? AwsomeVideoPlayer(
@@ -112,7 +114,7 @@ class _MyAppState extends State<MyApp> {
                     /// 自定义视频暂停时视频中部的播放按钮
                     playIcon: Icon(
                       Icons.play_circle_outline,
-                      size: 100,
+                      size: 80,
                       color: Colors.white,
                     ),
 
@@ -149,6 +151,7 @@ class _MyAppState extends State<MyApp> {
                             setState(() {
                               showAdvertCover = true;
                             });
+
                             ///
                           },
                           child: Icon(
@@ -190,18 +193,30 @@ class _MyAppState extends State<MyApp> {
                     videoControlBarStyle: VideoControlBarStyle(
                       /// 自定义颜色
                       // barBackgroundColor: Colors.blue,
-                      
+
+                      ///添加边距
+                      padding: EdgeInsets.symmetric(horizontal: 10),
+
+                      ///设置控制拦的高度，默认为30，如果图标设置过大但是高度不够就会出现图标被裁剪的现象
+                      height: 30,
+
                       /// 自定义进度条样式
                       progressStyle: VideoProgressStyle(
-                        // padding: EdgeInsets.all(0),
-                        playedColor: Colors.red,
-                        bufferedColor: Colors.yellow,
-                        backgroundColor: Colors.green,
-                        dragBarColor: Colors.white,//进度条为`progress`时有效，如果时`basic-progress`则无效
-                        height: 4,
-                        progressRadius: 2,//进度条为`progress`时有效，如果时`basic-progress`则无效
-                        dragHeight: 5//进度条为`progress`时有效，如果时`basic-progress`则无效
-                      ),
+                          // padding: EdgeInsets.all(0),
+                          padding: EdgeInsets.symmetric(
+                              vertical: 0,
+                              horizontal: 10), //vertical不能设置太大，不然被把进度条压缩肉眼无法识别
+                          playedColor: Colors.red,
+                          bufferedColor: Colors.yellow,
+                          backgroundColor: Colors.green,
+                          dragBarColor: Colors
+                              .white, //进度条为`progress`时有效，如果时`basic-progress`则无效
+                          height: 4,
+                          progressRadius:
+                              2, //进度条为`progress`时有效，如果时`basic-progress`则无效
+                          dragHeight:
+                              5 //进度条为`progress`时有效，如果时`basic-progress`则无效
+                          ),
 
                       /// 更改进度栏的播放按钮
                       playIcon:
@@ -231,14 +246,14 @@ class _MyAppState extends State<MyApp> {
                       /// 更改进度栏的全屏按钮
                       fullscreenIcon: Icon(
                         Icons.fullscreen,
-                        size: 16,
+                        size: 20,
                         color: Colors.white,
                       ),
 
                       /// 更改进度栏的退出全屏按钮
                       fullscreenExitIcon: Icon(
                         Icons.fullscreen_exit,
-                        size: 16,
+                        size: 20,
                         color: Colors.red,
                       ),
 
@@ -247,10 +262,10 @@ class _MyAppState extends State<MyApp> {
                         "rewind",
                         "play",
                         "forward",
-                        "position-time",//当前播放时间
-                        "progress",//线条形进度条（与‘basic-progress’二选一）
+                        "position-time", //当前播放时间
+                        "progress", //线条形进度条（与‘basic-progress’二选一）
                         // "basic-progress",//矩形进度条（与‘progress’二选一）
-                        "duration-time",//视频总时长
+                        "duration-time", //视频总时长
                         // "time",//格式：当前时间/视频总时长
                         "fullscreen"
                       ],
@@ -290,39 +305,44 @@ class _MyAppState extends State<MyApp> {
 
                     /// DEMO2 这个将会覆盖的视频内容，因为这个层级是最高级，因此手势会失效(慎用)
                     /// 这个可以用来做视频广告
-                    showAdvertCover ? Align(
-                      alignment: Alignment.center,
-                      child:  Container(
-                        width: 200,
-                        height: 100,
-                        color: Colors.blue[500],
-                        child: Stack(
-                          fit: StackFit.expand,
-                          children: <Widget>[
-                            //关闭广告
-                            Align(
-                              alignment: Alignment.topRight,
-                                child: GestureDetector(
-                                onTap: () {
-                                  setState(() {
-                                    showAdvertCover = false;
-                                  });
-                                },
-                                child: Icon(
-                                  Icons.cancel,
-                                  size: 16,
-                                  color: Colors.white,
-                                ),
+                    showAdvertCover
+                        ? Align(
+                            alignment: Alignment.center,
+                            child: Container(
+                              width: 200,
+                              height: 100,
+                              color: Colors.blue[500],
+                              child: Stack(
+                                fit: StackFit.expand,
+                                children: <Widget>[
+                                  //关闭广告
+                                  Align(
+                                    alignment: Alignment.topRight,
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        setState(() {
+                                          showAdvertCover = false;
+                                        });
+                                      },
+                                      child: Icon(
+                                        Icons.cancel,
+                                        size: 16,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                  Container(
+                                    alignment: Alignment.center,
+                                    child: Text(
+                                      "一个广告封面",
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                  )
+                                ],
                               ),
                             ),
-                            Container(
-                              alignment: Alignment.center,
-                              child: Text("一个广告封面", style: TextStyle(color: Colors.white),),
-                            )
-                          ],
-                        ),
-                      ),
-                    ) : Align(),
+                          )
+                        : Align(),
                   ],
 
                   /// 视频暂停回调
