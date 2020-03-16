@@ -37,7 +37,9 @@ class VideoTopBar extends AnimatedWidget {
                   /// 返回按钮
                   GestureDetector(
                     onTap: () {
-                      onpop != null && onpop();
+                      if (onpop != null) {
+                        onpop();
+                      }
                     },
                     child: videoTopBarStyle.popIcon,
                   ),

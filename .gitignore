@@ -7,3 +7,7 @@
 *.lock
 
 build/
+
+**/.classpath
+**/.project
+**/.settings

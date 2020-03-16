@@ -1,3 +1,6 @@
+## awsome_video_player
+[![pub package](https://img.shields.io/pub/v/awsome_video_player.svg)](https://pub.dartlang.org/packages/awsome_video_player)
+
 一个简单易用的而且可高度自定义的播放器。
 
 ![原型图](https://upload-images.jianshu.io/upload_images/4406914-032f148ae9fce8f6.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
