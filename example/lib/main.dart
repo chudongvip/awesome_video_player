@@ -72,6 +72,16 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
+    NativePlugin.onDevicesChange.listen((devices) {
+      if (devices.length == 0) return;
+      if (devices.first == "start") {
+        print("开始投屏");
+        return;
+      }
+      print(devices);
+      NativePlugin.dlnaPlay("https://www.runoob.com/try/demo_source/movie.mp4",
+          index: 0);
+    });
 
     /// 更改视频播放链接DMEO
     // Future.delayed(Duration(seconds: 10), () {
@@ -145,22 +155,43 @@ class _MyAppState extends State<MyApp> {
                         )
                       ], //自定义顶部控制栏中间显示区域
                       actions: [
-                        GestureDetector(
-                          onTap: () {
-                            ///1. 可配合自定义拓展元素使用，例如广告
-                            setState(() {
-                              showAdvertCover = true;
-                            });
+                        IconButton(
+                            icon: Icon(
+                              Icons.play_circle_outline,
+                              size: 16,
+                              color: Colors.white,
+                            ),
+                            onPressed: () async {
+                              bool isPlaying =
+                                  await NativePlugin.dlnaPlayOrPause();
+                              print("isPlaying: $isPlaying");
+                            }),
+                        IconButton(
+                            icon: Icon(
+                              Icons.stop,
+                              size: 16,
+                              color: Colors.white,
+                            ),
+                            onPressed: () {
+                              NativePlugin.dlnaStop();
+                            }),
+                        IconButton(
+                            icon: Icon(
+                              Icons.more_horiz,
+                              size: 16,
+                              color: Colors.white,
+                            ),
+                            onPressed: () {
+                              NativePlugin.dlnaSearch();
 
-                            ///
-                          },
-                          child: Icon(
-                            Icons.more_horiz,
-                            size: 16,
-                            color: Colors.white,
-                          ),
-                        )
-                      ], //自定义顶部控制栏右侧显示区域
+                              ///1. 可配合自定义拓展元素使用，例如广告
+                              setState(() {
+                                showAdvertCover = true;
+                              });
+                            })
+                      ],
+
+                      /// 自定义顶部控制栏右侧显示区域
                       /// 设置cusotmBar之后，以上属性均无效(除了`show`之外)
                       // customBar: Positioned(
                       //   top: 0,
