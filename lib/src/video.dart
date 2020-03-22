@@ -31,6 +31,7 @@ class AwsomeVideoPlayer extends StatefulWidget {
     this.onplay,
     this.onpause,
     this.ontimeupdate,
+    this.onprogressdrag,
     this.onended,
     this.onvolume,
     this.onbrightness,
@@ -42,7 +43,7 @@ class AwsomeVideoPlayer extends StatefulWidget {
         super(key: key);
 
   /// 视频资源
-  final String dataSource;
+  final dataSource;
 
   /// 播放自定义属性
   final VideoPlayOptions playOptions;
@@ -60,6 +61,7 @@ class AwsomeVideoPlayer extends StatefulWidget {
   final VideoCallback<String> onnetwork; //屏幕亮度回调
   final VideoCallback<bool> onfullscreen; //屏幕亮度回调
   final VideoCallback<VideoPlayerValue> onpop; //顶部控制栏点击返回回调
+  final VideoProgressDragHandle onprogressdrag;//进度被拖拽的回调
 
   @override
   _AwsomeVideoPlayerState createState() => _AwsomeVideoPlayerState();
@@ -74,20 +76,10 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer>
   Animation<double> controlTopBarAnimation;
   Animation<double> controlBottomBarAnimation;
 
+  BuildContext videoContext;
+
   /// 是否全屏
-  bool get fullscreened => _fullscreened;
-  bool _fullscreened = false;
-  set fullscreened(bool isFull) {
-    _fullscreened = isFull;
-
-    if (widget.onfullscreen != null) {
-      widget.onfullscreen(_fullscreened);
-    }
-    OrientationPlugin.forceOrientation(_fullscreened
-        ? DeviceOrientation.landscapeRight
-        : DeviceOrientation.portraitUp);
-  }
-
+  bool fullscreened = false;
   bool initialized = false;
   double brightness;
   bool showMeau = false;
@@ -113,7 +105,33 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer>
     controlBottomBarAnimation =
         Tween(begin: -widget.videoStyle.videoTopBarStyle.height, end: 0.0)
             .animate(controlBarAnimationController);
-    // controlBarAnimationController.forward();
+
+    var widgetsBinding = WidgetsBinding.instance;
+    //监听系统的每一帧
+    widgetsBinding.addPostFrameCallback((callback) {
+      widgetsBinding.addPersistentFrameCallback((callback) {
+        var orientation = MediaQuery.of(videoContext).orientation;
+        bool _fullscreen;
+        if (orientation == Orientation.landscape) {//横屏
+          _fullscreen = true;
+          SystemChrome.setEnabledSystemUIOverlays([]);
+        } else if (orientation == Orientation.portrait) {
+          _fullscreen = false;
+          SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
+        }
+        if (_fullscreen != fullscreened) {
+          setState(() {
+            fullscreened = !fullscreened;
+            //触发全屏事件
+            if (widget.onfullscreen != null) {
+              widget.onfullscreen(fullscreened);
+            }
+          });
+        }
+        //触发一帧的绘制
+        widgetsBinding.scheduleFrame();
+      });
+    });
 
     /// 网络监听
     subscription = Connectivity()
@@ -167,7 +185,14 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer>
               if (widget.ontimeupdate != null) {
                 widget.ontimeupdate(controller.value);
               }
-
+              
+              // print(controller.value.buffered);
+              // print(controller.value.isBuffering);
+              // if (controller.value.isBuffering) {
+              //   print("isBuffering");
+              // }
+              // print("error: " + controller.value.errorDescription);
+              
               if (controller.value.isPlaying) {
                 setState(() {
                   if (oDuration.inHours == 0) {
@@ -210,7 +235,7 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer>
     }
   }
 
-  //点击播放或暂停
+  /// 点击播放或暂停
   void togglePlay() {
     createHideControlbarTimer();
 
@@ -226,6 +251,15 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer>
       }
     }
     setState(() {});
+  }
+
+  /// 点击全屏或取消
+  void toggleFullScreen() {
+    if (fullscreened) {
+      OrientationPlugin.forceOrientation(DeviceOrientation.portraitUp);
+    } else {
+      OrientationPlugin.forceOrientation(DeviceOrientation.landscapeRight);
+    }
   }
 
   /// 显示或隐藏菜单栏
@@ -290,6 +324,30 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer>
     });
   }
 
+  /// 创建video controller
+  VideoPlayerController createVideoPlayerController() {
+    final netRegx = new RegExp(r'^(http|https):\/\/([\w.]+\/?)\S*');
+    final fileRegx = new RegExp(r'^(file):\/\/([\w.]+\/?)\S*');
+    final isNetwork = netRegx.hasMatch(widget.dataSource);
+    final isFile = fileRegx.hasMatch(widget.dataSource);
+    if (isNetwork) {
+      return VideoPlayerController.network(widget.dataSource);
+    } else if (isFile) {
+      return VideoPlayerController.file(widget.dataSource);
+    } else {
+      return VideoPlayerController.asset(widget.dataSource);
+    }
+  }
+
+  //计算设备的宽高比
+  double _calculateAspectRatio(BuildContext context) {
+    final width = screenSize.width;
+    final height = screenSize.height;
+
+    // return widget.playOptions.aspectRatio ?? controller.value.aspectRatio;
+    return width > height ? width / height : height / width;
+  }
+
   /// 动态生成进度条组件
   List<Widget> generateVideoProgressChildren() {
     Map<String, Widget> videoProgressWidgets = {
@@ -327,6 +385,7 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer>
           padding: EdgeInsets.symmetric(horizontal: 4),
           child: VideoLinearProgressBar(controller,
               allowScrubbing: widget.playOptions.allowScrubbing,
+              onprogressdrag: widget.onprogressdrag,
               padding:
                   widget.videoStyle.videoControlBarStyle.progressStyle.padding,
               progressStyle:
@@ -378,7 +437,13 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer>
           padding: EdgeInsets.symmetric(horizontal: 2),
           child: GestureDetector(
             onTap: () {
-              fullscreened = !fullscreened;
+              if (fullscreened) {
+                OrientationPlugin.forceOrientation(
+                    DeviceOrientation.portraitUp);
+              } else {
+                OrientationPlugin.forceOrientation(
+                    DeviceOrientation.landscapeRight);
+              }
             },
             child: fullscreened
                 ? widget.videoStyle.videoControlBarStyle.fullscreenExitIcon
@@ -407,7 +472,7 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer>
               videoControlBarStyle: widget.videoStyle.videoControlBarStyle,
               onpop: () {
                 if (fullscreened) {
-                  fullscreened = !fullscreened;
+                  toggleFullScreen();
                 } else {
                   if (widget.onpop != null) {
                     widget.onpop(null);
@@ -478,6 +543,8 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer>
 
   @override
   Widget build(BuildContext context) {
+    videoContext = context;
+
     /// Loading...
     if (!initialized)
       return VideoLoadingView(
@@ -599,50 +666,23 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer>
     videoChildrens.addAll(widget.children ?? []);
 
     /// 构建video
-    return WillPopScope(onWillPop: () {
-      // 监听返回按键
-      if (fullscreened) {
-        fullscreened = !fullscreened;
-        return new Future.value(false);
-      } else {
-        return new Future.value(true);
-      }
-    }, child: OrientationBuilder(builder: (context, orientation) {
-      final full = orientation == Orientation.landscape;
-      if (_fullscreened != full) {
-        Future.delayed(Duration(milliseconds: 0)).then((e) {
-          _fullscreened = full;
-          if (widget.onfullscreen != null) {
-            widget.onfullscreen(fullscreened);
+    return WillPopScope(
+        onWillPop: () {
+          // 监听返回按键
+          if (fullscreened) {
+            toggleFullScreen();
+            return new Future.value(false);
+          } else {
+            return new Future.value(true);
           }
-        });
-      }
-      return AspectRatio(
-        aspectRatio: fullscreened
-            ? _calculateAspectRatio(context)
-            : widget.playOptions.aspectRatio,
+        },
+        child: AspectRatio(
+          aspectRatio: fullscreened
+              ? _calculateAspectRatio(context)
+              : widget.playOptions.aspectRatio,
 
-        /// build 所有video组件
-        child: Stack(children: videoChildrens),
-      );
-    }));
-  }
-
-  /// 创建video controller
-  VideoPlayerController createVideoPlayerController() {
-    final regx = new RegExp(r'^(http|https):\/\/([\w.]+\/?)\S*');
-    final isNetwork = regx.hasMatch(widget.dataSource);
-    if (isNetwork)
-      return VideoPlayerController.network(widget.dataSource);
-    else
-      return VideoPlayerController.asset(widget.dataSource);
-  }
-
-  double _calculateAspectRatio(BuildContext context) {
-    final width = screenSize.width;
-    final height = screenSize.height;
-
-    // return widget.playOptions.aspectRatio ?? controller.value.aspectRatio;
-    return width > height ? width / height : height / width;
+          /// build 所有video组件
+          child: Stack(children: videoChildrens),
+        ));
   }
 }

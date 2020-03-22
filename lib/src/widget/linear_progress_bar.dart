@@ -3,6 +3,8 @@ import 'package:video_player/video_player.dart';
 
 import '../video_progress_style.dart';
 
+typedef VideoProgressDragHandle = void Function(Duration position, Duration duration);
+
 /// 自定义线性进度条
 class VideoLinearProgressBar extends StatefulWidget {
   VideoLinearProgressBar(
@@ -10,6 +12,7 @@ class VideoLinearProgressBar extends StatefulWidget {
     VideoProgressStyle progressStyle,
     this.allowScrubbing,
     this.padding = const EdgeInsets.only(top: 5.0),
+    this.onprogressdrag,
   }) : progressStyle = progressStyle ?? VideoProgressStyle();
 
   final VideoPlayerController controller;
@@ -19,6 +22,8 @@ class VideoLinearProgressBar extends StatefulWidget {
   final bool allowScrubbing;
 
   final EdgeInsets padding;
+
+  final VideoProgressDragHandle onprogressdrag;
 
   @override
   _VideoLinearProgressBarState createState() => _VideoLinearProgressBarState();
@@ -56,6 +61,7 @@ class _VideoLinearProgressBarState extends State<VideoLinearProgressBar> {
   Widget build(BuildContext context) {
     return _VideoScrubber(
       controller: controller,
+      handleDrag: widget.onprogressdrag,
       child: CustomPaint(
         painter: _ProgressBarPainter(controller.value, style),
         child: Container(),
@@ -69,10 +75,12 @@ class _VideoScrubber extends StatefulWidget {
   _VideoScrubber({
     @required this.child,
     @required this.controller,
+    this.handleDrag
   });
 
   final Widget child;
   final VideoPlayerController controller;
+  final VideoProgressDragHandle handleDrag;
 
   @override
   _VideoScrubberState createState() => _VideoScrubberState();
@@ -93,6 +101,16 @@ class _VideoScrubberState extends State<_VideoScrubber> {
       controller.seekTo(position);
     }
 
+    void emitDragUpdate(globalPosition) {
+      if (widget.handleDrag != null) {
+        final RenderBox box = context.findRenderObject();
+        final Offset tapPos = box.globalToLocal(globalPosition);
+        final double relative = tapPos.dx / box.size.width;
+        final Duration position = controller.value.duration * relative;
+        widget.handleDrag(position, controller.value.duration);
+      }
+    }
+
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       child: widget.child,
@@ -109,6 +127,7 @@ class _VideoScrubberState extends State<_VideoScrubber> {
         if (!controller.value.initialized) {
           return;
         }
+        emitDragUpdate(details.globalPosition);
         seekToRelativePosition(details.globalPosition);
       },
       onHorizontalDragEnd: (DragEndDetails details) {

@@ -95,6 +95,7 @@ A：目前还在完善当中，但是功能基本都已经完善了，剩下的�
 | onpop        | VideoCallback    | 顶部控制栏返回按钮点击回调                                     |
 | onnetwork    | VideoCallback    | 网络变化回调                                                 |
 | onfullscreen | VideoCallback    | 视频是否全屏回调                                          |
+| onprogressdrag | VideoCallback    | 进度条被拖拽的回调                                          |
 <br>
 
 ## 播放器自定义配置 (VideoPlayOptions)

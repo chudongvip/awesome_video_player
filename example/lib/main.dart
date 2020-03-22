@@ -374,6 +374,11 @@ class _MyAppState extends State<MyApp> {
                     //根据 position 来判断当前显示的字幕
                   },
 
+                  onprogressdrag: (position, duration) {
+                    print("进度条拖拽的时间节点： ${position}");
+                    print("进度条总时长： ${duration}");
+                  },
+
                   onvolume: (value) {
                     print("onvolume ${value}");
                   },
