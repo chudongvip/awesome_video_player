@@ -3,7 +3,8 @@ import 'package:video_player/video_player.dart';
 
 import '../video_progress_style.dart';
 
-typedef VideoProgressDragHandle = void Function(Duration position, Duration duration);
+typedef VideoProgressDragHandle = void Function(
+    Duration position, Duration duration);
 
 /// 自定义线性进度条
 class VideoLinearProgressBar extends StatefulWidget {
@@ -72,11 +73,8 @@ class _VideoLinearProgressBarState extends State<VideoLinearProgressBar> {
 
 /// 处理进度条手势
 class _VideoScrubber extends StatefulWidget {
-  _VideoScrubber({
-    @required this.child,
-    @required this.controller,
-    this.handleDrag
-  });
+  _VideoScrubber(
+      {@required this.child, @required this.controller, this.handleDrag});
 
   final Widget child;
   final VideoPlayerController controller;

@@ -61,7 +61,7 @@ class AwsomeVideoPlayer extends StatefulWidget {
   final VideoCallback<String> onnetwork; //屏幕亮度回调
   final VideoCallback<bool> onfullscreen; //屏幕亮度回调
   final VideoCallback<VideoPlayerValue> onpop; //顶部控制栏点击返回回调
-  final VideoProgressDragHandle onprogressdrag;//进度被拖拽的回调
+  final VideoProgressDragHandle onprogressdrag; //进度被拖拽的回调
 
   @override
   _AwsomeVideoPlayerState createState() => _AwsomeVideoPlayerState();
@@ -75,8 +75,6 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer>
   AnimationController controlBarAnimationController;
   Animation<double> controlTopBarAnimation;
   Animation<double> controlBottomBarAnimation;
-
-  BuildContext videoContext;
 
   /// 是否全屏
   bool fullscreened = false;
@@ -110,9 +108,11 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer>
     //监听系统的每一帧
     widgetsBinding.addPostFrameCallback((callback) {
       widgetsBinding.addPersistentFrameCallback((callback) {
-        var orientation = MediaQuery.of(videoContext).orientation;
+        if (context == null) return;
+        var orientation = MediaQuery.of(context).orientation;
         bool _fullscreen;
-        if (orientation == Orientation.landscape) {//横屏
+        if (orientation == Orientation.landscape) {
+          //横屏
           _fullscreen = true;
           SystemChrome.setEnabledSystemUIOverlays([]);
         } else if (orientation == Orientation.portrait) {
@@ -185,14 +185,14 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer>
               if (widget.ontimeupdate != null) {
                 widget.ontimeupdate(controller.value);
               }
-              
+
               // print(controller.value.buffered);
               // print(controller.value.isBuffering);
               // if (controller.value.isBuffering) {
               //   print("isBuffering");
               // }
               // print("error: " + controller.value.errorDescription);
-              
+
               if (controller.value.isPlaying) {
                 setState(() {
                   if (oDuration.inHours == 0) {
@@ -543,8 +543,6 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer>
 
   @override
   Widget build(BuildContext context) {
-    videoContext = context;
-
     /// Loading...
     if (!initialized)
       return VideoLoadingView(
