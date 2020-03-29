@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 class VideoTopBarStyle {
   VideoTopBarStyle({
     this.show = true,
-    this.height = 30,
+    this.height = 36,
+    this.margin = const EdgeInsets.all(0),
     this.padding = const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
     this.barBackgroundColor = const Color.fromRGBO(0, 0, 0, 0.5),
     this.popIcon = const Icon(
@@ -19,6 +20,7 @@ class VideoTopBarStyle {
 
   final bool show;
   final double height;
+  EdgeInsets margin;
   final EdgeInsets padding;
   final Color barBackgroundColor;
   final Widget popIcon;

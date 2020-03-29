@@ -1,6 +1,9 @@
-## 1.0.6+2
+## 1.0.7
 
-- 修复方向监听
+- 修复已知BUG
+- 优化默认UI
+- `VideoStyle`新增配置项`videoLoadingStyle`，配置或重写视频初始化和缓冲 Loading 样式
+- `VideoPlayOptions`新增视频手势调节单位的配置项（例如：右侧垂直手势调音量大小的单位）
 
 ## 1.0.6+1
 

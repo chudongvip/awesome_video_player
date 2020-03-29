@@ -5,6 +5,9 @@ class VideoPlayOptions {
     this.startPosition = const Duration(seconds: 0),
     this.loop = false,
     this.seekSeconds = 15,
+    this.progressGestureUnit = 1000,
+    this.volumeGestureUnit = 0.01,
+    this.brightnessGestureUnit = 0.01,
     this.autoplay = true,
     this.allowScrubbing = true,
   });
@@ -17,6 +20,15 @@ class VideoPlayOptions {
 
   /// 视频快进秒数
   final num seekSeconds;
+
+  /// 设置（横向）手势调节视频进度的秒数单位，默认为`1s`
+  final num progressGestureUnit;
+
+  /// 设置（右侧垂直）手势调节视频音量的单位，必须为0～1之间（不能小于0，不能大于1），默认为`0.01`
+  final num volumeGestureUnit;
+
+  /// 设置（左侧垂直）手势调节视频亮度的单位，必须为0～1之间（不能小于0，不能大于1），默认为`0.01`
+  final num brightnessGestureUnit;
 
   /// 是否自动播放
   final bool autoplay;

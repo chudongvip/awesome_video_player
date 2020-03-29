@@ -80,7 +80,7 @@ A：目前还在完善当中，但是功能基本都已经完善了，剩下的�
 | ------------ | ---------------- | ------------------------------------------------------------ |
 | dataSource   | String           | 视频URL或媒体文件的路径                        |
 | playOptions  | VideoPlayOptions | 视频播放自定义配置，包含是否自动播放，是否循环播放等（详情见下方的**Useage**）                     |
-| videoStyle   | VideoStyle       | 视频播放器自定义样式，自定义顶部控制拦样式、自定义底部控制拦样式等（详情见下方的**Useage**）                   |
+| videoStyle   | VideoStyle       | 视频播放器自定义样式，自定义顶部控制拦样式、自定义底部控制拦样式、自定义Loading样式等（详情见下方的**Useage**）          |
 | children     | List<Widget>     | 自定义拓展的元素，需要使用 Widget `Align`（字幕、弹幕、广告、封面等其他自定义元素） |
 
 | 回调方法         | 类型             | 描述                                                         |
@@ -104,7 +104,10 @@ A：目前还在完善当中，但是功能基本都已经完善了，剩下的�
 | -------------- | -------- | ----------------------------------------- |
 | startPosition  | Duration | 开始播放节点，例如：Duration(seconds: 0)) |
 | loop           | bool     | 是否循环播放                              |
-| seekSeconds    | num      | 设置视频快进/快退单位秒数，默认为`15s`    |
+| seekSeconds    | num      | 设置视频快进/快退单位秒数，默认为`15s`       |
+| progressGestureUnit    | num      | 设置（横向）手势调节视频进度的秒数单位，默认为`1s`       |
+| volumeGestureUnit    | num      | 设置（右侧垂直）手势调节视频音量的单位，必须为0～1之间（不能小于0，不能大于1），默认为`0.01`       |
+| brightnessGestureUnit    | num      | 设置（左侧垂直）手势调节视频亮度的单位，必须为0～1之间（不能小于0，不能大于1），默认为`0.01`       |
 | autoplay       | bool     | 是否自动播放                              |
 | aspectRatio    | num      | 视频播放比例，例如：16/9 或者 4/3           |
 | allowScrubbing | bool     | 是否允许进度条拖拽                         |
@@ -119,6 +122,7 @@ A：目前还在完善当中，但是功能基本都已经完善了，剩下的�
 | videoTopBarStyle     | VideoTopBarStyle     | 视频顶部自定义样式（详情见下方的**Useage**）                            |
 | videoControlBarStyle | VideoControlBarStyle | 控制栏自定义样式（详情见下方的**Useage**）                              |
 | videoSubtitlesStyle  | VideoSubtitles       | 字幕自定义样式（详情见下方的**Useage**）                                |
+| videoLoadingStyle    | VideoLoadingStyle    | 视频缓冲或者初始化Loading的自定义样式（详情见下方的**Useage**）                                |
 
 ### 自定义顶部控制栏 (VideoTopBarStyle)：
 

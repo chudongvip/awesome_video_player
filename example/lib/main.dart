@@ -52,7 +52,8 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  String videoUrl = "https://www.runoob.com/try/demo_source/movie.mp4";
+  // String videoUrl = "https://www.runoob.com/try/demo_source/movie.mp4";
+  String videoUrl = "https://yun.zxziyuan-yun.com/20180221/4C6ivf8O/index.m3u8";
   // String videoUrl = "http://vodkgeyttp8.vod.126.net/cloudmusic/1241/core/e30b/aec700ee466da6c8ce51d12953e7b89f.mp4?wsSecret=a6d7342a3ea018d632b3d7ce56ffd11f&wsTime=1580815486";
   // String videoUrl = "http://vod.anyrtc.cc/364c01b9c8ca4e46bd65e7307887341d/34688ef93da349628d5e4efacf8a5167-9fd7790c8f5862b09c350e4a916b203d.mp4";
 
@@ -103,6 +104,12 @@ class _MyAppState extends State<MyApp> {
                   /// 视频播放配置
                   playOptions: VideoPlayOptions(
                       seekSeconds: 30,
+                      //左侧垂直手势调节视频亮度的单位（0～1之间，不能小于0，不能大于1）
+                      brightnessGestureUnit: 0.05,
+                      //右侧垂直手势调节视频音量的单位（0～1之间，不能小于0，不能大于1）
+                      volumeGestureUnit: 0.05,
+                      //横行手势调节视频进度的单位秒数
+                      progressGestureUnit: 2000,
                       aspectRatio: 16 / 9,
                       loop: true,
                       autoplay: true,
@@ -139,7 +146,10 @@ class _MyAppState extends State<MyApp> {
                             margin: EdgeInsets.symmetric(horizontal: 10),
                             child: Text(
                               '123',
-                              style: TextStyle(color: Colors.white),
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 14
+                              ),
                             ),
                           ),
                         )
@@ -195,28 +205,29 @@ class _MyAppState extends State<MyApp> {
                       // barBackgroundColor: Colors.blue,
 
                       ///添加边距
-                      padding: EdgeInsets.symmetric(horizontal: 10),
+                      padding:
+                          EdgeInsets.symmetric(vertical: 8, horizontal: 10),
 
                       ///设置控制拦的高度，默认为30，如果图标设置过大但是高度不够就会出现图标被裁剪的现象
                       height: 30,
 
                       /// 自定义进度条样式
-                      progressStyle: VideoProgressStyle(
-                          // padding: EdgeInsets.all(0),
-                          padding: EdgeInsets.symmetric(
-                              vertical: 0,
-                              horizontal: 10), //vertical不能设置太大，不然被把进度条压缩肉眼无法识别
-                          playedColor: Colors.red,
-                          bufferedColor: Colors.yellow,
-                          backgroundColor: Colors.green,
-                          dragBarColor: Colors
-                              .white, //进度条为`progress`时有效，如果时`basic-progress`则无效
-                          height: 4,
-                          progressRadius:
-                              2, //进度条为`progress`时有效，如果时`basic-progress`则无效
-                          dragHeight:
-                              5 //进度条为`progress`时有效，如果时`basic-progress`则无效
-                          ),
+                      // progressStyle: VideoProgressStyle(
+                      //     // padding: EdgeInsets.all(0),
+                      //     padding: EdgeInsets.symmetric(
+                      //         vertical: 0,
+                      //         horizontal: 10), //vertical不能设置太大，不然被把进度条压缩肉眼无法识别
+                      //     playedColor: Colors.red,
+                      //     bufferedColor: Colors.yellow,
+                      //     backgroundColor: Colors.green,
+                      //     dragBarColor: Colors
+                      //         .white, //进度条为`progress`时有效，如果时`basic-progress`则无效
+                      //     height: 4,
+                      //     progressRadius:
+                      //         2, //进度条为`progress`时有效，如果时`basic-progress`则无效
+                      //     dragHeight:
+                      //         5 //进度条为`progress`时有效，如果时`basic-progress`则无效
+                      //     ),
 
                       /// 更改进度栏的播放按钮
                       playIcon:

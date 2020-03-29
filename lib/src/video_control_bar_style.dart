@@ -6,17 +6,17 @@ const double iconSize = 18;
 /// 底部控制拦样式
 class VideoControlBarStyle {
   VideoControlBarStyle({
-    this.height = 30,
-    this.padding = const EdgeInsets.symmetric(vertical: 4, horizontal: 6),
+    this.height = 36,
+    this.margin = const EdgeInsets.all(0),
+    this.padding = const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
     VideoProgressStyle progressStyle, //进度条样式
     this.playedColor = const Color.fromRGBO(255, 0, 0, 0.7), //几个版本后移除
     this.bufferedColor = const Color.fromRGBO(50, 50, 200, 0.2), //几个版本后移除
     this.backgroundColor = const Color.fromRGBO(200, 200, 200, 0.5), //几个版本后移除
     this.barBackgroundColor = const Color.fromRGBO(0, 0, 0, 0.5),
     this.timePadding = const EdgeInsets.symmetric(horizontal: 4),
-    this.timeFontSize = 8,
+    this.timeFontSize = 11,
     this.timeFontColor = const Color.fromRGBO(255, 255, 255, 1),
-    // this.iconSize = 28,
     this.playIcon = const Icon(
       Icons.play_circle_outline,
       size: iconSize,
@@ -65,6 +65,7 @@ class VideoControlBarStyle {
 
   final double height;
   final EdgeInsets padding;
+  EdgeInsets margin;
   final VideoProgressStyle progressStyle;
   final Color playedColor;
   final Color bufferedColor;

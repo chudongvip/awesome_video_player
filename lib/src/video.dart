@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:awsome_video_player/src/widget/video_loading_view.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:orientation/orientation.dart';
@@ -11,11 +10,11 @@ import './video_style.dart';
 import './video_play_options.dart';
 
 ///widgets
-import './widget/video_loading_view.dart';
 import './widget/default_progress_bar.dart';
 import './widget/linear_progress_bar.dart';
 import './widget/video_top_bar.dart';
 import './widget/video_bottom_bar.dart';
+import './widget/video_load_buffering_view.dart';
 
 typedef VideoCallback<T> = void Function(T t);
 
@@ -79,8 +78,15 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer>
   /// 是否全屏
   bool fullscreened = false;
   bool initialized = false;
+  /// 屏幕亮度
   double brightness;
+  /// 是否显示控制拦
   bool showMeau = false;
+  /// 是否正在缓冲
+  bool checkBuffing = false;
+  bool isBuffing = false;
+  /// 是否结束
+  bool isEnded = false;
   Timer showTime;
   String position = "--:--";
   String duration = "--:--";
@@ -98,10 +104,10 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer>
     controlBarAnimationController = AnimationController(
         duration: const Duration(milliseconds: 300), vsync: this);
     controlTopBarAnimation =
-        Tween(begin: -widget.videoStyle.videoTopBarStyle.height, end: 0.0)
+        Tween(begin: -(widget.videoStyle.videoTopBarStyle.height + widget.videoStyle.videoTopBarStyle.margin.vertical * 2), end: 0.0)
             .animate(controlBarAnimationController);
     controlBottomBarAnimation =
-        Tween(begin: -widget.videoStyle.videoTopBarStyle.height, end: 0.0)
+        Tween(begin: -(widget.videoStyle.videoTopBarStyle.height + widget.videoStyle.videoControlBarStyle.margin.vertical * 2), end: 0.0)
             .animate(controlBarAnimationController);
 
     var widgetsBinding = WidgetsBinding.instance;
@@ -186,11 +192,19 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer>
                 widget.ontimeupdate(controller.value);
               }
 
-              // print(controller.value.buffered);
-              // print(controller.value.isBuffering);
-              // if (controller.value.isBuffering) {
-              //   print("isBuffering");
-              // }
+              if (controller.value.buffered.length == 0) {
+                setState(() {
+                  checkBuffing = true;
+                });
+              }
+              if (checkBuffing) {
+                setState(() {
+                  isBuffing = controller.value.isBuffering;
+                  if (!isBuffing) {
+                    checkBuffing = false;
+                  }
+                });
+              }
               // print("error: " + controller.value.errorDescription);
 
               if (controller.value.isPlaying) {
@@ -210,6 +224,9 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer>
               } else {
                 if (oPosition >= oDuration) {
                   if (widget.onended != null) {
+                    setState(() {
+                      isEnded = true;
+                    });
                     widget.onended(controller.value);
                   }
                 }
@@ -462,7 +479,7 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer>
   }
 
   /// 内置组件
-  List<Widget> videoBuiltInChildrens() {
+  List<Widget> videoBuiltInChildrens() {          
     return [
       /// 顶部控制拦
       widget.videoStyle.videoTopBarStyle.show
@@ -482,7 +499,7 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer>
           : Align(),
 
       /// 是否显示播放按钮
-      !controller.value.isPlaying && widget.videoStyle.showPlayIcon
+      widget.videoStyle.showPlayIcon && !controller.value.isPlaying && !isBuffing && isEnded
           ? Align(
               alignment: Alignment.center,
               child: GestureDetector(
@@ -538,18 +555,23 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer>
         videoControlBarStyle: widget.videoStyle.videoControlBarStyle,
         children: generateVideoProgressChildren(),
       ),
+
+      /// Loading
+      !initialized || isBuffing ? VideoLoadBuffingView(
+        loadingStyle: widget.videoStyle.videoLoadingStyle
+      ) : Align()
     ];
   }
 
   @override
   Widget build(BuildContext context) {
     /// Loading...
-    if (!initialized)
-      return VideoLoadingView(
-        aspectRatio: fullscreened
-            ? _calculateAspectRatio(context)
-            : widget.playOptions.aspectRatio,
-      );
+    // if (!initialized)
+    //   return VideoLoadingView(
+    //     aspectRatio: fullscreened
+    //         ? _calculateAspectRatio(context)
+    //         : widget.playOptions.aspectRatio,
+    //   );
 
     /// Video children
     final videoChildrens = <Widget>[
@@ -566,7 +588,7 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer>
             togglePlay();
           },
 
-          /// 水平滑动
+          /// 水平滑动 - 调节视频进度
           onHorizontalDragStart: (DragStartDetails details) {
             if (!controller.value.initialized) return;
             if (controller.value.isPlaying) {
@@ -584,8 +606,8 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer>
             var currentPosition = controller.value.position;
             controller.seekTo(Duration(
                 milliseconds: details.primaryDelta > 0
-                    ? currentPosition.inMilliseconds + 100
-                    : currentPosition.inMilliseconds - 100));
+                    ? currentPosition.inMilliseconds + widget.playOptions.progressGestureUnit
+                    : currentPosition.inMilliseconds - widget.playOptions.progressGestureUnit));
           },
           onHorizontalDragEnd: (DragEndDetails details) {
             if (!controller.value.isPlaying) {
@@ -593,15 +615,18 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer>
             }
           },
 
-          /// 垂直滑动
-          onVerticalDragStart: (DragStartDetails details) {},
+          /// 垂直滑动 - 调节亮度以及音量
+          onVerticalDragStart: (DragStartDetails details) {
+            if (!controller.value.initialized) return;
+          },
           onVerticalDragUpdate: (DragUpdateDetails details) async {
+            if (!controller.value.initialized) return;
+            // 右侧垂直滑动 - 音量调节
             if (details.globalPosition.dx >= (screenSize.width / 2)) {
-              //右侧垂直滑动
               if (details.primaryDelta > 0) {
                 //往下滑动
                 if (controller.value.volume <= 0) return;
-                var vol = controller.value.volume - 0.01;
+                var vol = controller.value.volume - widget.playOptions.volumeGestureUnit;
                 if (widget.onvolume != null) {
                   widget.onvolume(vol);
                 }
@@ -609,28 +634,27 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer>
               } else {
                 //往上滑动
                 if (controller.value.volume >= 1) return;
-                var vol = controller.value.volume + 0.01;
+                var vol = controller.value.volume + widget.playOptions.volumeGestureUnit;
                 if (widget.onvolume != null) {
                   widget.onvolume(vol);
                 }
                 controller.setVolume(vol);
               }
-            } else {
-              //左侧垂直滑动
+            } else {// 左侧垂直滑动 - 亮度调节
               if (brightness == null) {
                 brightness = await Screen.brightness;
               }
               if (details.primaryDelta > 0) {
                 //往下滑动
                 if (brightness <= 0) return;
-                brightness -= 0.01;
+                brightness -= widget.playOptions.brightnessGestureUnit;
                 if (widget.onbrightness != null) {
                   widget.onbrightness(brightness);
                 }
               } else {
                 //往上滑动
                 if (brightness >= 1) return;
-                brightness += 0.01;
+                brightness += widget.playOptions.brightnessGestureUnit;
                 if (widget.onbrightness != null) {
                   widget.onbrightness(brightness);
                 }
@@ -653,8 +677,7 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer>
             )),
           ))),
 
-      ///控制拦以及可拓展元素
-      ///ToDoList...
+      ///控制拦以及(可拓展)元素
     ];
 
     /// 内置元素
