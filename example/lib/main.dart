@@ -128,6 +128,21 @@ class _MyAppState extends State<MyApp> {
                     /// 暂停时是否显示视频中部播放按钮
                     showPlayIcon: true,
 
+                    videoLoadingStyle: VideoLoadingStyle(
+                      /// 重写部分（二选一）
+                      // 重写Loading的widget
+                      // customLoadingIcon: CircularProgressIndicator(strokeWidth: 2.0),
+                      // 重写Loading 下方的Text widget
+                      // customLoadingText: Text("加载中..."),
+                      /// 设置部分（二选一）
+                      // 设置Loading icon 下方的文字
+                      loadingText: "Loading...",
+                      // 设置loading icon 下方的文字颜色
+                      loadingTextFontColor: Colors.white,
+                      // 设置loading icon 下方的文字大小
+                      loadingTextFontSize: 20,
+                    ),
+
                     /// 自定义顶部控制栏
                     videoTopBarStyle: VideoTopBarStyle(
                       show: true, //是否显示
@@ -146,10 +161,8 @@ class _MyAppState extends State<MyApp> {
                             margin: EdgeInsets.symmetric(horizontal: 10),
                             child: Text(
                               '123',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 14
-                              ),
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 14),
                             ),
                           ),
                         )

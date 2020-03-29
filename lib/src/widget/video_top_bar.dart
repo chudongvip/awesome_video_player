@@ -32,12 +32,14 @@ class VideoTopBar extends AnimatedWidget {
               padding: videoTopBarStyle.padding,
               height: videoTopBarStyle.height,
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [videoControlBarStyle.barBackgroundColor, Colors.transparent],
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                )
-              ),
+                  gradient: LinearGradient(
+                colors: [
+                  videoControlBarStyle.barBackgroundColor,
+                  Colors.transparent
+                ],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              )),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[

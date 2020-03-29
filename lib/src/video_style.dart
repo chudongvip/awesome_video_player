@@ -27,7 +27,7 @@ class VideoStyle {
   final VideoTopBarStyle videoTopBarStyle; //视频顶部样式
   final VideoControlBarStyle videoControlBarStyle; //进度条样式
   final VideoSubtitles videoSubtitlesStyle; //字幕样式
-  final VideoLoadingStyle videoLoadingStyle; //字幕样式
+  final VideoLoadingStyle videoLoadingStyle; //loading样式
   // final String videoCover; //视频封面
   final Widget playIcon; //暂停时显示
   final bool showPlayIcon; //暂停时是否显示播放按钮

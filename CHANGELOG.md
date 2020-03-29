@@ -1,3 +1,7 @@
+## 1.0.7+1
+
+- 暴露`VideoLoadingStyle`
+
 ## 1.0.7
 
 - 修复已知BUG
