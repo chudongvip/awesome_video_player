@@ -9,7 +9,7 @@ import 'package:connectivity/connectivity.dart';
 import './video_style.dart';
 import './video_play_options.dart';
 
-///widgets
+//widgets
 import './widget/default_progress_bar.dart';
 import './widget/linear_progress_bar.dart';
 import './widget/video_top_bar.dart';
@@ -49,18 +49,37 @@ class AwsomeVideoPlayer extends StatefulWidget {
   final VideoStyle videoStyle;
   final List<Widget> children;
 
-  ///
-  final VideoCallback<VideoPlayerController> oninit; //初始化完成回调事件
-  final VideoCallback<VideoPlayerValue> onplay; //播放开始回调
-  final VideoCallback<VideoPlayerValue> ontimeupdate; //播放开始回调
-  final VideoCallback<VideoPlayerValue> onpause; //播放暂停回调
-  final VideoCallback<VideoPlayerValue> onended; //播放结束回调
-  final VideoCallback<double> onvolume; //播放声音大小回调
-  final VideoCallback<double> onbrightness; //屏幕亮度回调
-  final VideoCallback<String> onnetwork; //屏幕亮度回调
-  final VideoCallback<bool> onfullscreen; //屏幕亮度回调
-  final VideoCallback<VideoPlayerValue> onpop; //顶部控制栏点击返回回调
-  final VideoProgressDragHandle onprogressdrag; //进度被拖拽的回调
+  /// 初始化完成回调事件
+  final VideoCallback<VideoPlayerController> oninit;
+
+  /// 播放开始回调
+  final VideoCallback<VideoPlayerValue> onplay;
+
+  /// 播放开始回调
+  final VideoCallback<VideoPlayerValue> ontimeupdate;
+
+  /// 播放暂停回调
+  final VideoCallback<VideoPlayerValue> onpause;
+
+  /// 播放结束回调
+  final VideoCallback<VideoPlayerValue> onended;
+
+  /// 播放声音大小回调
+  final VideoCallback<double> onvolume;
+
+  /// 屏幕亮度回调
+  final VideoCallback<double> onbrightness;
+
+  /// 网络变化回调
+  final VideoCallback<String> onnetwork;
+
+  /// 屏幕亮度回调
+  final VideoCallback<bool> onfullscreen;
+  //顶部控制栏点击返回回调
+  final VideoCallback<VideoPlayerValue> onpop;
+
+  /// 进度被拖拽的回调
+  final VideoProgressDragHandle onprogressdrag;
 
   @override
   _AwsomeVideoPlayerState createState() => _AwsomeVideoPlayerState();
@@ -136,6 +155,7 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer>
         if (_fullscreen != fullscreened) {
           setState(() {
             fullscreened = !fullscreened;
+            _navigateLocally(context);
             //触发全屏事件
             if (widget.onfullscreen != null) {
               widget.onfullscreen(fullscreened);
@@ -695,23 +715,25 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer>
     videoChildrens.addAll(widget.children ?? []);
 
     /// 构建video
-    return WillPopScope(
-        onWillPop: () {
-          // 监听返回按键
-          if (fullscreened) {
-            toggleFullScreen();
-            return new Future.value(false);
-          } else {
-            return new Future.value(true);
-          }
-        },
-        child: AspectRatio(
-          aspectRatio: fullscreened
-              ? _calculateAspectRatio(context)
-              : widget.playOptions.aspectRatio,
+    return AspectRatio(
+      aspectRatio: fullscreened
+          ? _calculateAspectRatio(context)
+          : widget.playOptions.aspectRatio,
 
-          /// build 所有video组件
-          child: Stack(children: videoChildrens),
-        ));
+      /// build 所有video组件
+      child: Stack(children: videoChildrens),
+    );
+  }
+
+  void _navigateLocally(context) async {
+    if (!fullscreened) {
+      if (ModalRoute.of(context).willHandlePopInternally) {
+        Navigator.of(context).pop();
+      }
+      return;
+    }
+    ModalRoute.of(context).addLocalHistoryEntry(LocalHistoryEntry(onRemove: () {
+      if (fullscreened) toggleFullScreen();
+    }));
   }
 }
