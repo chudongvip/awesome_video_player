@@ -18,7 +18,14 @@ class VideoStyle {
       size: 80,
       semanticLabel: "开始播放",
     ),
+    this.replayIcon = const Icon(
+      Icons.replay,
+      color: Color(0xFFA4A3A3),
+      size: 50,
+      semanticLabel: "开始播放",
+    ),
     this.showPlayIcon = true,
+    this.showReplayIcon = true,
   })  : videoTopBarStyle = videoTopBarStyle ?? VideoTopBarStyle(),
         videoControlBarStyle = videoControlBarStyle ?? VideoControlBarStyle(),
         videoSubtitlesStyle = videoSubtitlesStyle ?? VideoSubtitles(),
@@ -30,5 +37,7 @@ class VideoStyle {
   final VideoLoadingStyle videoLoadingStyle; //loading样式
   // final String videoCover; //视频封面
   final Widget playIcon; //暂停时显示
+  final Widget replayIcon; //暂停时显示
   final bool showPlayIcon; //暂停时是否显示播放按钮
+  final bool showReplayIcon; //暂停时是否显示播放按钮
 }

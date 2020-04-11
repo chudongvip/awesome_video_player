@@ -97,6 +97,7 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer>
   /// 是否全屏
   bool fullscreened = false;
   bool initialized = false;
+  bool isReplaying = false;
 
   /// 屏幕亮度
   double brightness;
@@ -190,6 +191,17 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer>
   }
 
   @override
+  void didUpdateWidget(AwsomeVideoPlayer oldWidget) {
+    if (oldWidget.dataSource != widget.dataSource) {
+      if (controller.value.isPlaying) {
+        controller.pause();
+      }
+      updateDataSource();
+    }
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
   void dispose() {
     clearHideControlbarTimer();
     controller.dispose();
@@ -203,79 +215,103 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer>
     super.dispose();
   }
 
+  void updateDataSource() {
+    setState(() {
+      controller = createVideoPlayerController()
+        ..addListener(listener)
+        ..initialize().then(handleInit);
+      isReplaying = true;
+    });
+  }
+
+  void resetVideoPlayer() {
+    setState(() {
+      isEnded = true;
+      position = "--:--";
+      duration = "--:--";
+      controller.value = VideoPlayerValue(duration: null);
+    });
+  }
+
+  void listener() {
+    if (!mounted) {
+      return;
+    }
+    if (controller != null) {
+      if (controller.value.initialized) {
+        var oPosition = controller.value.position;
+        var oDuration = controller.value.duration;
+
+        if (widget.ontimeupdate != null) {
+          widget.ontimeupdate(controller.value);
+        }
+
+        if (controller.value.buffered.length == 0) {
+          setState(() {
+            checkBuffing = true;
+          });
+        }
+        if (checkBuffing) {
+          setState(() {
+            isBuffing = controller.value.isBuffering;
+            if (!isBuffing) {
+              checkBuffing = false;
+            }
+          });
+        }
+        // print("error: " + controller.value.errorDescription);
+
+        if (controller.value.isPlaying) {
+          setState(() {
+            if (oDuration.inHours == 0) {
+              var strPosition = oPosition.toString().split('.')[0];
+              var strDuration = oDuration.toString().split('.')[0];
+              position =
+                  "${strPosition.split(':')[1]}:${strPosition.split(':')[2]}";
+              duration =
+                  "${strDuration.split(':')[1]}:${strDuration.split(':')[2]}";
+            } else {
+              position = oPosition.toString().split('.')[0];
+              duration = oDuration.toString().split('.')[0];
+            }
+          });
+        } else {
+          if (oPosition >= oDuration) {
+            if (widget.onended != null) {
+              resetVideoPlayer();
+              widget.onended(controller.value);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  void handleInit(_) {
+    print("初始化完成");
+    if (widget.oninit != null) {
+      widget.oninit(controller);
+    }
+    initialized = true;
+    setState(() {});
+    if (widget.playOptions.autoplay || isReplaying) {
+      if (widget.playOptions.startPosition.inSeconds != 0) {
+        controller.seekTo(widget.playOptions.startPosition);
+      }
+      controller.play();
+      if (isReplaying) {
+        isEnded = false;
+        isReplaying = false;
+      }
+    }
+  }
+
   void initPlayer() {
     if (controller == null) {
       if (widget.dataSource == null || widget.dataSource == "") return;
       controller = createVideoPlayerController()
-        ..addListener(() {
-          if (!mounted) {
-            return;
-          }
-          if (controller != null) {
-            if (controller.value.initialized) {
-              var oPosition = controller.value.position;
-              var oDuration = controller.value.duration;
-
-              if (widget.ontimeupdate != null) {
-                widget.ontimeupdate(controller.value);
-              }
-
-              if (controller.value.buffered.length == 0) {
-                setState(() {
-                  checkBuffing = true;
-                });
-              }
-              if (checkBuffing) {
-                setState(() {
-                  isBuffing = controller.value.isBuffering;
-                  if (!isBuffing) {
-                    checkBuffing = false;
-                  }
-                });
-              }
-              // print("error: " + controller.value.errorDescription);
-
-              if (controller.value.isPlaying) {
-                setState(() {
-                  if (oDuration.inHours == 0) {
-                    var strPosition = oPosition.toString().split('.')[0];
-                    var strDuration = oDuration.toString().split('.')[0];
-                    position =
-                        "${strPosition.split(':')[1]}:${strPosition.split(':')[2]}";
-                    duration =
-                        "${strDuration.split(':')[1]}:${strDuration.split(':')[2]}";
-                  } else {
-                    position = oPosition.toString().split('.')[0];
-                    duration = oDuration.toString().split('.')[0];
-                  }
-                });
-              } else {
-                if (oPosition >= oDuration) {
-                  if (widget.onended != null) {
-                    setState(() {
-                      isEnded = true;
-                    });
-                    widget.onended(controller.value);
-                  }
-                }
-              }
-            }
-          }
-        })
-        ..initialize().then((_) {
-          print("初始化完成");
-          if (widget.oninit != null) {
-            widget.oninit(controller);
-          }
-          initialized = true;
-          setState(() {});
-          if (widget.playOptions.autoplay) {
-            if (widget.playOptions.startPosition.inSeconds != 0) {
-              controller.seekTo(widget.playOptions.startPosition);
-            }
-            controller.play();
-          }
-        })
+        ..addListener(listener)
+        ..initialize().then(handleInit)
         ..setLooping(widget.playOptions.loop);
     }
   }
@@ -331,7 +367,7 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer>
 
     ///如果是播放状态5秒后自动隐藏
     showTime = Timer(Duration(milliseconds: 5000), () {
-      if (controller.value.isPlaying) {
+      if (controller != null && controller.value.isPlaying) {
         if (showMeau) {
           setState(() {
             showMeau = false;
@@ -481,15 +517,7 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer>
       "fullscreen": Padding(
           padding: EdgeInsets.symmetric(horizontal: 2),
           child: GestureDetector(
-            onTap: () {
-              if (fullscreened) {
-                OrientationPlugin.forceOrientation(
-                    DeviceOrientation.portraitUp);
-              } else {
-                OrientationPlugin.forceOrientation(
-                    DeviceOrientation.landscapeRight);
-              }
-            },
+            onTap: toggleFullScreen,
             child: fullscreened
                 ? widget.videoStyle.videoControlBarStyle.fullscreenExitIcon
                 : widget.videoStyle.videoControlBarStyle.fullscreenIcon,
@@ -528,9 +556,9 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer>
 
       /// 是否显示播放按钮
       widget.videoStyle.showPlayIcon &&
-              !controller.value.isPlaying &&
-              !isBuffing &&
-              isEnded
+              initialized &&
+              (!controller.value.isPlaying && !isEnded && !isReplaying) &&
+              !isBuffing
           ? Align(
               alignment: Alignment.center,
               child: GestureDetector(
@@ -540,6 +568,19 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer>
                   }
                 },
                 child: widget.videoStyle.playIcon,
+              ),
+            )
+          : Text(""),
+
+      /// 是否显示重播按钮
+      initialized && isEnded
+          ? Align(
+              alignment: Alignment.center,
+              child: GestureDetector(
+                onTap: () {
+                  updateDataSource();
+                },
+                child: widget.videoStyle.replayIcon,
               ),
             )
           : Text(""),
@@ -588,7 +629,7 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer>
       ),
 
       /// Loading
-      !initialized || isBuffing
+      !initialized || isBuffing || isReplaying
           ? VideoLoadingView(loadingStyle: widget.videoStyle.videoLoadingStyle)
           : Align()
     ];

@@ -118,7 +118,9 @@ A：目前还在完善当中，但是功能基本都已经完善了，剩下的�
 | 属性                 | 类型                 | 描述                                                                    |
 | -------------------- | -------------------- | ----------------------------------------------------------------------- |
 | playIcon             | Widget               | 视频暂停播放时中央显示的图标，showPlayIcon为`false`时，该属性设置无效。 |
+| replayIcon           | Widget               | 视频结束时中央显示的重播图标，showReplayIcon为`false`时，该属性设置无效。 |
 | showPlayIcon         | bool                 | 暂停时是否显示播放按钮                                                  |
+| showReplayIcon       | bool                 | 视频播放结束时是否显示重播按钮                                                  |
 | videoTopBarStyle     | VideoTopBarStyle     | 视频顶部自定义样式（详情见下方的**Useage**）                            |
 | videoControlBarStyle | VideoControlBarStyle | 控制栏自定义样式（详情见下方的**Useage**）                              |
 | videoSubtitlesStyle  | VideoSubtitles       | 字幕自定义样式（详情见下方的**Useage**）                                |

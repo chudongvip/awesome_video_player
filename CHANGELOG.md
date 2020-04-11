@@ -1,3 +1,9 @@
+## 1.0.8
+
+- `videoStyle`添加`replayIcon`和`showReplayIcon`
+- 视频结束之后重置播放时间和进度条
+- 优化了`playIcon`显示的策略
+
 ## 1.0.7+3
 
 - 暴露`VideoLoadingStyle`
