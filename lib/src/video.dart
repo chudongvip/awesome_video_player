@@ -97,7 +97,6 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer>
   /// 是否全屏
   bool fullscreened = false;
   bool initialized = false;
-  bool isReplaying = false;
 
   /// 屏幕亮度
   double brightness;
@@ -197,6 +196,7 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer>
         controller.pause();
       }
       updateDataSource();
+      controller.play();
     }
     super.didUpdateWidget(oldWidget);
   }
@@ -220,7 +220,6 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer>
       controller = createVideoPlayerController()
         ..addListener(listener)
         ..initialize().then(handleInit);
-      isReplaying = true;
     });
   }
 
@@ -294,15 +293,12 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer>
     }
     initialized = true;
     setState(() {});
-    if (widget.playOptions.autoplay || isReplaying) {
+    if (widget.playOptions.autoplay) {
       if (widget.playOptions.startPosition.inSeconds != 0) {
         controller.seekTo(widget.playOptions.startPosition);
       }
       controller.play();
-      if (isReplaying) {
-        isEnded = false;
-        isReplaying = false;
-      }
+      isEnded = false;
     }
   }
 
@@ -557,7 +553,7 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer>
       /// 是否显示播放按钮
       widget.videoStyle.showPlayIcon &&
               initialized &&
-              (!controller.value.isPlaying && !isEnded && !isReplaying) &&
+              (!controller.value.isPlaying && !isEnded) &&
               !isBuffing
           ? Align(
               alignment: Alignment.center,
@@ -578,7 +574,9 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer>
               alignment: Alignment.center,
               child: GestureDetector(
                 onTap: () {
+                  isEnded = false;
                   updateDataSource();
+                  controller.play();
                 },
                 child: widget.videoStyle.replayIcon,
               ),
@@ -629,7 +627,7 @@ class _AwsomeVideoPlayerState extends State<AwsomeVideoPlayer>
       ),
 
       /// Loading
-      !initialized || isBuffing || isReplaying
+      !initialized || isBuffing
           ? VideoLoadingView(loadingStyle: widget.videoStyle.videoLoadingStyle)
           : Align()
     ];
