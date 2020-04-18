@@ -1,3 +1,7 @@
+## 1.0.8+1
+
+- 修复loading异常
+
 ## 1.0.8
 
 - `videoStyle`添加`replayIcon`和`showReplayIcon`

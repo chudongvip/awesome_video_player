@@ -1,6 +1,6 @@
 name: awsome_video_player
 description: This is a flutter package of video player. it's a very simple and easy to use.
-version: 1.0.8
+version: 1.0.8+1
 homepage: https://github.com/chudongvip/awsome_video_player
 
 environment:
