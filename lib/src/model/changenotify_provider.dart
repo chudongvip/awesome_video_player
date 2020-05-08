@@ -33,6 +33,8 @@ class ChangeNotifierProvider<T extends ChangeNotifier> extends StatefulWidget {
         : context
             .getElementForInheritedWidgetOfExactType<InheritedProvider<T>>()
             .widget as InheritedProvider<T>;
+    // final provider =
+    //     context.dependOnInheritedWidgetOfExactType<InheritedProvider<T>>();
     return provider.data;
   }
 

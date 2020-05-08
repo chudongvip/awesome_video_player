@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import './video_loading_style.dart';
+import '../style/video_loading_style.dart';
 
 class VideoLoadingView extends StatelessWidget {
   VideoLoadingView({this.loadingStyle});

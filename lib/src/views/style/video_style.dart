@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import './video_top_bar_style.dart';
 import './video_control_bar_style.dart';
 import './video_subtitles.dart';
-import '../loading/video_loading_style.dart';
+import './video_loading_style.dart';
 
 /// 播放器样式
 class VideoStyle {

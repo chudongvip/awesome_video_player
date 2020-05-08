@@ -1,5 +1,7 @@
 import 'dart:io';
+import 'package:battery/battery.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:video_player/video_player.dart';
 
 class AwesomeVideoValue {
@@ -14,7 +16,13 @@ class AwesomeVideoValue {
     this.showControlsOnInitialize = true,
     this.showControls = true,
     this.allowedScreenSleep = true,
-    this.allowFullScreen = true,
+    this.systemOverlaysAfterFullScreen = SystemUiOverlay.values,
+    this.deviceOrientationsAfterFullScreen = const [
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight,
+    ],
     this.seekSeconds = 15,
     this.progressGestureUnit = 1,
     this.volumeGestureUnit = 0.05,
@@ -41,7 +49,11 @@ class AwesomeVideoValue {
 
   final bool allowedScreenSleep;
 
-  final bool allowFullScreen;
+  /// Defines the system overlays visible after exiting fullscreen
+  final List<SystemUiOverlay> systemOverlaysAfterFullScreen;
+
+  /// Defines the set of allowed device orientations after exiting fullscreen
+  final List<DeviceOrientation> deviceOrientationsAfterFullScreen;
 
   final num seekSeconds;
 
@@ -54,6 +66,14 @@ class AwesomeVideoValue {
 
 class AwesomeVideoController extends ChangeNotifier {
   VideoPlayerController videoPlayerController;
+
+  AwesomeVideoController(
+      {this.videoPlayerController, AwesomeVideoValue options})
+      : options = options ?? AwesomeVideoValue(),
+        assert(videoPlayerController != null,
+            'You must provide a controller to play a video') {
+    _initialize();
+  }
 
   AwesomeVideoController.network(this.dataSource,
       {this.options, this.formatHint, this.closedCaptionFile}) {
@@ -98,36 +118,57 @@ class AwesomeVideoController extends ChangeNotifier {
   bool get isPlaying => videoPlayerController.value.isPlaying;
 
   Future _initialize() async {
-    await videoPlayerController.setLooping(this.options.loop);
+    await videoPlayerController.setLooping(options.loop);
 
-    if ((this.options.autoInitialize || this.options.autoPlay) &&
+    if ((options.autoInitialize || options.autoPlay) &&
         !videoPlayerController.value.initialized) {
       await videoPlayerController.initialize();
     }
 
-    if (this.options.autoPlay) {
-      if (this.options.fullScreenByDefault) {
+    if (options.autoPlay) {
+      if (options.fullScreenByDefault) {
         requestFullScreen();
       }
 
       await videoPlayerController.play();
     }
 
-    if (this.options.startPosition != null) {
-      await videoPlayerController.seekTo(this.options.startPosition);
+    if (options.startPosition != null) {
+      await videoPlayerController.seekTo(options.startPosition);
     }
 
-    if (this.options.fullScreenByDefault) {
+    if (!options.autoPlay && options.fullScreenByDefault) {
       videoPlayerController.addListener(_fullScreenListener);
     }
   }
 
   void _fullScreenListener() async {
-    if (videoPlayerController.value.isPlaying && !_isFullScreen) {
+    if (isPlaying && !_isFullScreen) {
       requestFullScreen();
       videoPlayerController.removeListener(_fullScreenListener);
     }
   }
+
+  // void createController(String sourceType, dynamic datasource, {AwesomeVideoValue options, formatHint, closedCaptionFile}) {
+  //   if (videoPlayerController != null) {
+  //     // videoPlayerController
+  //   } else {
+  //     _initialize();
+  //   }
+  //   options = options ?? AwesomeVideoValue();
+
+  //   if (sourceType == "file") {
+  //     file = datasource;
+  //     videoPlayerController = VideoPlayerController.file(file,
+  //       closedCaptionFile: closedCaptionFile);
+  //   } else if (sourceType == "network") {
+  //     videoPlayerController = VideoPlayerController.network(dataSource,
+  //       formatHint: formatHint, closedCaptionFile: closedCaptionFile);
+  //   } else if (sourceType == "asset") {
+  //     videoPlayerController = VideoPlayerController.asset(dataSource,
+  //       package: package, closedCaptionFile: closedCaptionFile);
+  //   }
+  // }
 
   void requestFullScreen() {
     _isFullScreen = true;
@@ -152,22 +193,19 @@ class AwesomeVideoController extends ChangeNotifier {
     if (!videoPlayerController.value.initialized) {
       await videoPlayerController.initialize();
     }
-    if (videoPlayerController.value.isPlaying) return;
+    if (isPlaying ||
+        videoPlayerController.value.position >=
+            videoPlayerController.value.duration) return;
     await videoPlayerController.play();
   }
 
   Future<void> pause() async {
-    if (!videoPlayerController.value.isPlaying) return;
+    if (!isPlaying) return;
     await videoPlayerController.pause();
   }
 
   Future<void> togglePlay() async {
-    if (!videoPlayerController.value.initialized ||
-        !videoPlayerController.value.isPlaying) {
-      await play();
-    } else {
-      await pause();
-    }
+    isPlaying ? pause() : play();
   }
 
   Future<void> seekTo(Duration moment) async {
@@ -179,8 +217,42 @@ class AwesomeVideoController extends ChangeNotifier {
   }
 
   void end() {
-    videoPlayerController.value = VideoPlayerValue(duration: null);
+    videoPlayerController.dispose();
+    // videoPlayerController.value = VideoPlayerValue(duration: null);
     notifyListeners();
+  }
+
+  void updateVideoSource(dataSource) {
+    if (videoPlayerController != null) {
+      videoPlayerController.pause();
+      videoPlayerController.seekTo(Duration(seconds: 0));
+      videoPlayerController.value = VideoPlayerValue.uninitialized();
+      final netRegx = new RegExp(r'^(http|https):\/\/([\w.]+\/?)\S*');
+      // final netRegx = new RegExp(r'^(http|https):\/\/([\w.]+\/?)\S*');
+      final isNetwork = netRegx.hasMatch(dataSource);
+      if (isNetwork) {
+        videoPlayerController = VideoPlayerController.network(dataSource,
+            formatHint: formatHint, closedCaptionFile: closedCaptionFile);
+      } else if (dataSource is File) {
+        videoPlayerController = VideoPlayerController.file(file,
+            closedCaptionFile: closedCaptionFile);
+      }
+
+      notifyListeners();
+      _initialize();
+      // videoPlayerController.dispose();
+
+      //  else if () {
+
+      // }
+    }
+  }
+
+  void disposeVideoController() {
+    // TODO: implement dispose
+    if (videoPlayerController != null) {
+      videoPlayerController.dispose();
+    }
   }
 
   // void changeDataSource(dataSource) {
